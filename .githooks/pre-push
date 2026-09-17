@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# pre-push: block pushes containing private keys or API secrets (SKILL.md rule 3)
+# (BEGIN-KEY pattern is split so this file cannot self-match)
+set -euo pipefail
+PAT="sk_[A-Za-z0-9]{30,}"
+PAT="$PAT|-----BEGIN""[ A-Z]*PRIVATE KEY-----"
+PAT="$PAT|\"privateKey\"[[:space:]]*:"
+PAT="$PAT|0x[0-9a-fA-F]{64}"
+blocked=0
+while read -r lref lsha rref rsha; do
+  if [ "$rsha" = "0000000000000000000000000000000000000000" ]; then
+    SCAN=$(git log -p -20 -- . ":(exclude).githooks" || true)
+  else
+    SCAN=$(git diff -p "$rsha..$lsha" -- . ":(exclude).githooks" || true)
+  fi
+  HITS=$(printf "%s" "$SCAN" | grep -En "$PAT" | head -3 || true)
+  if [ -n "$HITS" ]; then
+    echo "PUSH BLOCKED - secret/private-key pattern in outgoing changes:" >&2
+    echo "$HITS" >&2
+    echo "False positive? git push --no-verify (but think twice)" >&2
+    blocked=1
+  fi
+done
+exit $blocked
