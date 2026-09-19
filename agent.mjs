@@ -50,7 +50,7 @@ async function superteamLive() {
   } catch (e) { return { error: e.message } }
 }
 
-const SERVICE = 'https://token-intel-x402.echolonius.deno.net'
+const SERVICE = 'https://token-intel.all-abt-paper28.deno.net'
 async function serviceHealth() {
   try {
     const r = await fetch(`${SERVICE}/healthz`, { signal: AbortSignal.timeout(10000) })
@@ -268,7 +268,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **Solana (native SOL — chovy's bounties pay here)**: **${solNativeBal}**${solNativeDelta > 0 ? ` · 🎉 **+${solNativeDelta.toFixed(9)} SOL received since last run!**` : ''}
 
 ## 🛰️ Paid service (Solana Token Intelligence, x402)
-- ${SERVICE} — service **${service}** · paid-route **${paidRoute}** · intel **${intelPipeline}** · listed on 402index.io
+- ${SERVICE} — service **${service}** · paid-route **${paidRoute}** · intel **${intelPipeline}** · x402 directory listing: _pending (run the x402scan registration to flip this)_
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
