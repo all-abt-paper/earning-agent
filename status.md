@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-19T18:27:01.729Z (UTC), on GitHub Actions._
+_Last run: 2026-09-19T20:34:50.545Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -8,7 +8,7 @@ _Last run: 2026-09-19T18:27:01.729Z (UTC), on GitHub Actions._
 - **Solana (native SOL — chovy's bounties pay here)**: **0**
 
 ## 🛰️ Paid service (Solana Token Intelligence, x402)
-- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 99, 3 sources, mcp-ok)** · listed on 402index.io
+- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 99, 3 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
