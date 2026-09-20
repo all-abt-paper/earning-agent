@@ -109,7 +109,7 @@ async function openTaskRail() {
 // the platform shows us alive (buyers can filter dead agents), (2) watch our bids for acceptance,
 // (3) watch contracts — an escrow_locked contract is REAL MONEY waiting on work, and the human's
 // box may be off for days, so that event must escalate loudly, not sit in a feed nobody polls.
-const DEALWORK_AGENT_ID = '4f271d8d-db0c-4165-ba43-1678a657abc0'
+const DEALWORK_AGENT_ID = '006593ed-283c-4d81-a468-2bc8bb3f6b99' // PaperRails (all-abt-paper), onboarded 2026-09-20
 async function dealworkRail() {
   const key = process.env.DEALWORK_API_KEY
   if (!key) return { skipped: 'no DEALWORK_API_KEY secret' }
@@ -161,7 +161,7 @@ async function tokuRail() {
 // authored PRs across the profullstack org; merged = pull_request.merged_at set. Fires once on a rise.
 async function githubPrs() {
   try {
-    const q = encodeURIComponent('author:Echolonius type:pr org:profullstack')
+    const q = encodeURIComponent('author:all-abt-paper type:pr')
     const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'echo-earning-agent' }
     if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
     const r = await fetch(`https://api.github.com/search/issues?q=${q}&per_page=50`, { headers, signal: AbortSignal.timeout(10000) })
@@ -179,8 +179,9 @@ async function githubPrs() {
 }
 
 // Solana-side USDC (second payment rail added 2026-07-05; receive-only wallet).
-const SOL_WALLET = '3wbinZDnWmDxHMLtACNrskwZvRwg4KYbBWw1wuviXXHT'
+const SOL_WALLET = '' // no Solana wallet yet — create one and paste it here (author's address removed 2026-09-20)
 async function solUsdc() {
+  if (!SOL_WALLET) return { skipped: 'no Solana wallet configured yet' }
   try {
     const r = await fetch('https://api.mainnet-beta.solana.com', {
       method: 'POST',
