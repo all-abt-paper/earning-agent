@@ -129,7 +129,52 @@ async function dealworkRail() {
   } catch (e) { return { error: e.message, ...out } }
 }
 
-// toku.agency rail (registered 2026-07-10, agent echo-fable, autonomous onboard — pays real USD to
+// AUTONOMOUS BIDDING (added 2026-09-20): every run, scan the dealwork board for fresh jobs that
+// match our real skills and place up to 2 tailored bids — no human in the loop. Guardrails:
+// budget window $5–60 (where real buyers post), skip service-ad posts (they self-describe in
+// first person or are too short to be a real brief), skip spam farms by name, skip jobs we
+// already bid on (server state via /bids/mine), and 2 bids/run keeps us far under the platform's
+// 10-bids/hour limit. Proposal text is chosen by job category and always discloses AI + samples.
+const BID_SAMPLES = 'github.com/all-abt-paper'
+function proposalFor(title, desc) {
+  const t = (title + ' ' + desc).toLowerCase()
+  if (/openapi|api doc|document/.test(t)) return `Autonomous coding agent (AI-disclosed). Send the endpoints (spec, routes file, or cURL examples) and I return OpenAPI 3.0 YAML covering every endpoint: URL, method, typed request/response schemas, example payloads, and a documented error-code table. Samples: ${BID_SAMPLES}`
+  if (/security|vulnerab|owasp|xss|injection/.test(t)) return `Autonomous security-review agent (AI-disclosed). I return a structured report: findings by severity with affected lines, OWASP category mapping, an exploit scenario per finding, and concrete patched code. Samples: ${BID_SAMPLES}`
+  if (/dashboard|chart|visualiz|component|react|frontend|ui/.test(t)) return `Autonomous coding agent (AI-disclosed). I ship the component/file you described — typed, responsive, ready to drop in — plus a short usage note, delivered as a file or PR within hours. Samples: ${BID_SAMPLES}`
+  if (/scrap|crawl|dataset|csv|json|data/.test(t)) return `Autonomous data agent (AI-disclosed). I deliver clean structured output (JSON/CSV) with the pipeline/script included, plus a sample of the result up front so you can verify quality before accepting. Samples: ${BID_SAMPLES}`
+  if (/python|script|automat|bug|fix|test/.test(t)) return `Autonomous coding agent (AI-disclosed). I deliver the script/fix with a regression test where applicable, as files or a PR, within hours. Samples: ${BID_SAMPLES}`
+  return `Autonomous coding & research agent (AI-disclosed). I deliver exactly what the brief describes, as files or a PR, with a short summary of choices made. Samples: ${BID_SAMPLES}`
+}
+async function dealworkAutoBid(key) {
+  const out = { attempted: 0, placed: [], skipped: 0 }
+  try {
+    const mine = await (await fetch('https://dealwork.ai/api/v1/bids/mine?per_page=50', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(10000) })).json()
+    const bidJobs = new Set((mine.data || []).map((b) => b.jobId))
+    const r = await fetch('https://dealwork.ai/api/v1/jobs?status=bidding&per_page=50', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(10000) })
+    if (!r.ok) return { error: `HTTP ${r.status}`, ...out }
+    const jobs = ((await r.json()).data) || []
+    const candidates = jobs.filter((j) =>
+      typeof j.budgetMax === 'number' && j.budgetMax >= 5 && j.budgetMax <= 60 &&
+      !bidJobs.has(j.id) &&
+      (j.description || '').length >= 80 && // real briefs describe the work; ads and tests don't
+      !/\bI\b|\bsoy\b/i.test((j.description || '').slice(0, 300)) && // service-ads self-describe in first person
+      !/omniblocks|bountyfarmer|hello world|the universe/i.test(j.title + ' ' + (j.description || '')))
+    for (const j of candidates.slice(0, 2)) {
+      out.attempted++
+      const body = { proposedAmount: j.budgetMax.toFixed(2), estimatedHours: 1.5, proposalText: proposalFor(j.title, j.description) }
+      const br = await fetch(`https://dealwork.ai/api/v1/jobs/${j.id}/bids`, {
+        method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
+      })
+      if (br.ok) out.placed.push({ job: (j.title || '').slice(0, 60), amount: j.budgetMax })
+      else out.skipped++
+      // platform etiquette: no tight-loop retries — a 4xx will not change by retrying
+    }
+  } catch (e) { out.error = e.message }
+  return out
+}
+
+// toku.agency rail (registered 2026-07-10, autonomous onboard — pays real USD to
 // a platform wallet; Stripe onboarding is only needed at withdrawal, same claim-at-end shape as
 // Superteam). No webhook infra on our side, so poll the wallet: a balanceCents rise means someone
 // actually hired/paid us and that must escalate loudly, not sit unread in a platform inbox.
@@ -219,6 +264,7 @@ const paidRoute = await paidRouteHealth()
 const intelPipeline = await intelPipelineHealth()
 const openTask = await openTaskRail()
 const dealwork = await dealworkRail()
+if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY)
 const toku = await tokuRail()
 const github = await githubPrs()
 
@@ -273,8 +319,8 @@ _Last run: ${now} (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
-- **dealwork.ai** (agent echo-fable): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}`}
-- **toku.agency** (agent echo-fable, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
+- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
+- **toku.agency** (PaperRails, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -321,6 +367,7 @@ if (solNativeDelta > 0) console.log(`::notice title=PAYMENT RECEIVED::+${solNati
 if (newMerge) console.log('::notice title=PR MERGED::a profullstack PR merged — send the invoice on ugig now')
 if (openTask.live?.length) console.log(`::notice title=OPENTASK RAIL LIVE::methods ${openTask.live.join(', ')} — a new earning source just opened`)
 if (newContract) console.log('::notice title=DEALWORK BID ACCEPTED::escrow locked — work is owed, open a session to deliver')
+if (dealwork.autoBid?.placed?.length) console.log(`::notice title=NEW BIDS PLACED::${dealwork.autoBid.placed.map((p) => `$${p.amount} ${p.job}`).join(' | ')}`)
 if (tokuDelta > 0) console.log(`::notice title=TOKU PAYMENT::+$${(tokuDelta / 100).toFixed(2)} USD landed in the toku.agency wallet — total $${((toku.balanceCents || 0) / 100).toFixed(2)}`)
 if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread toku notification(s) — possible hire or DM`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
