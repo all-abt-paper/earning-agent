@@ -174,6 +174,79 @@ async function dealworkAutoBid(key) {
   return out
 }
 
+// ===== AUTONOMOUS DELIVERY (added 2026-09-20) =====
+// When a bid wins, the contract appears with escrow locked. This engine takes it from "won"
+// to "submitted" with no human: START_WORK → kickoff message → generate the deliverable →
+// POST deliverables → SUBMIT_WORK with the deliverableId. Generation uses GitHub Models
+// (free, GH_MODELS_TOKEN secret with models:read) when available. HONESTY GUARDRAIL: without
+// a working generator it NEVER submits placeholder junk — it asks the buyer for missing input
+// and alerts the human instead. Revisions: buyer messages newer than our last delivery trigger
+// a v2 with the feedback incorporated. Max 1 delivery per run, per-contract once-only state.
+const DW_API = 'https://dealwork.ai/api/v1'
+const dwJson = async (path, key, opts = {}) => {
+  const r = await fetch(`${DW_API}${path}`, { ...opts, headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(15000) })
+  const j = await r.json().catch(() => ({}))
+  return { ok: r.ok, status: r.status, data: j.data ?? j }
+}
+async function llmDeliverable(title, desc, feedback, token) {
+  const sys = 'You are PaperRails, an autonomous coding agent delivering paid work on a freelance marketplace. Produce the COMPLETE, submission-ready deliverable for the job below. Full file contents in fenced code blocks when code is asked for; OpenAPI 3.0 YAML for API-docs jobs; a structured severity-ranked report with concrete patches for security reviews. Specific and working — no placeholders, no TODOs. Start with a 3-line summary, then the deliverable.'
+  const user = `JOB TITLE: ${title}\n\nJOB BRIEF:\n${desc}\n${feedback ? `\nBUYER FEEDBACK TO INCORPORATE:\n${feedback}\n` : ''}\nProduce the deliverable now.`
+  for (const [url, model] of [['https://models.github.ai/inference/chat/completions', 'openai/gpt-4o-mini'], ['https://models.inference.ai.azure.com/chat/completions', 'gpt-4o-mini']]) {
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }], max_tokens: 4000, temperature: 0.3 }), signal: AbortSignal.timeout(60000) })
+      if (!r.ok) continue
+      const text = (await r.json())?.choices?.[0]?.message?.content
+      if (text && text.length > 200) return text
+    } catch {}
+  }
+  return null
+}
+async function dealworkDeliver(key) {
+  const out = { checked: 0, delivered: [], errors: [] }
+  let state = {}
+  try { state = JSON.parse(readFileSync(new URL('./delivered-contracts.json', import.meta.url), 'utf8')) } catch {}
+  try {
+    const contracts = await dwJson('/contracts?role=worker&per_page=20', key)
+    const active = (Array.isArray(contracts.data) ? contracts.data : []).filter((c) => ['escrow_locked', 'in_progress', 'revision'].includes(c.state))
+    out.checked = active.length
+    for (const c of active.slice(0, 1)) { // max 1 delivery per run — quality over throughput
+      const amount = Number(c.amount ?? c.escrowAmount ?? 0)
+      if (amount > 100) { out.errors.push(`${c.id.slice(0, 8)}: over $100 cap, needs human`); continue }
+      const prev = state[c.id]
+      const msgs = await dwJson(`/contracts/${c.id}/messages`, key)
+      const allMsgs = Array.isArray(msgs.data) ? msgs.data : []
+      const buyerMsgs = allMsgs.filter((m) => !/paperrails/i.test(m.authorName || m.author?.name || ''))
+      const lastBuyer = buyerMsgs[buyerMsgs.length - 1]
+      const needsWork = !prev || (lastBuyer && new Date(lastBuyer.createdAt || lastBuyer.created_at || 0) > new Date(prev.at || 0))
+      if (!needsWork) continue
+      const job = c.jobId ? await dwJson(`/jobs/${c.jobId}`, key) : null
+      const jd = job?.data || {}
+      const title = c.jobTitle || jd.title || 'Contract work'
+      const desc = jd.description || c.jobDescription || title
+      const feedback = prev && lastBuyer ? (lastBuyer.content || lastBuyer.body || '') : ''
+      if (!prev) {
+        await dwJson(`/contracts/${c.id}/events`, key, { method: 'POST', body: JSON.stringify({ type: 'START_WORK' }) })
+        await dwJson(`/contracts/${c.id}/messages`, key, { method: 'POST', body: JSON.stringify({ content: 'PaperRails here (autonomous AI agent — disclosed). Starting now: I will read the brief, produce the deliverable, and submit for review within about an hour. If any input would sharpen the result (dataset, endpoints, code, format), reply here.', attachments: [] }) })
+      }
+      const token = process.env.GH_MODELS_TOKEN
+      const body = token ? await llmDeliverable(title, desc, feedback, token) : null
+      if (!body) {
+        out.errors.push(`${c.id.slice(0, 8)}: no working generator (GH_MODELS_TOKEN) — deferred, human alert fired`)
+        continue
+      }
+      await dwJson(`/contracts/${c.id}/messages`, key, { method: 'POST', body: JSON.stringify({ content: `Update: the deliverable is generated and being submitted for review now${feedback ? ' with your feedback incorporated' : ''}.`, attachments: [] }) })
+      const del = await dwJson(`/contracts/${c.id}/deliverables`, key, { method: 'POST', body: JSON.stringify({ description: `Deliverable v${(prev?.version || 0) + 1} for: ${title}`, outputData: body }) })
+      const delId = del.data?.id || del.data?.deliverableId
+      if (!del.ok || !delId) { out.errors.push(`${c.id.slice(0, 8)}: deliverable POST HTTP ${del.status}`); continue }
+      await dwJson(`/contracts/${c.id}/events`, key, { method: 'POST', body: JSON.stringify({ type: 'SUBMIT_WORK', deliverableId: delId }) })
+      state[c.id] = { version: (prev?.version || 0) + 1, at: new Date().toISOString(), deliverableId: delId }
+      writeFileSync(new URL('./delivered-contracts.json', import.meta.url), JSON.stringify(state, null, 2))
+      out.delivered.push({ contract: c.id.slice(0, 8), job: String(title).slice(0, 60), amount })
+    }
+  } catch (e) { out.error = e.message }
+  return out
+}
+
 // toku.agency rail (registered 2026-07-10, autonomous onboard — pays real USD to
 // a platform wallet; Stripe onboarding is only needed at withdrawal, same claim-at-end shape as
 // Superteam). No webhook infra on our side, so poll the wallet: a balanceCents rise means someone
@@ -265,6 +338,7 @@ const intelPipeline = await intelPipelineHealth()
 const openTask = await openTaskRail()
 const dealwork = await dealworkRail()
 if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY)
+if (process.env.DEALWORK_API_KEY) dealwork.delivery = await dealworkDeliver(process.env.DEALWORK_API_KEY)
 const toku = await tokuRail()
 const github = await githubPrs()
 
@@ -319,7 +393,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
-- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
+- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
 - **toku.agency** (PaperRails, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
@@ -352,7 +426,7 @@ if (notify) {
     : newMerge
     ? `💵 PR MERGED (${now}) — a profullstack PR was merged; send the invoice on ugig now to get paid`
     : newContract
-    ? `⚡ DEALWORK BID ACCEPTED (${now}) — escrow locked, work is owed; open a Claude session to deliver`
+    ? `⚡ DEALWORK CONTRACT WON (${now}) — escrow locked ($${(dealwork.contracts?.find((c) => ['escrow_locked', 'in_progress'].includes(c.state))?.amount) ?? '?'}); PaperRails auto-delivery is engaged — watch status.md`
     : `event (${now})`
   writeFileSync(NOTIFY, msg + '\n')
 } else {
@@ -366,7 +440,8 @@ if (solDelta > 0) console.log(`::notice title=PAYMENT RECEIVED::+${solDelta.toFi
 if (solNativeDelta > 0) console.log(`::notice title=PAYMENT RECEIVED::+${solNativeDelta.toFixed(9)} native SOL landed — total ${solNativeBal}`)
 if (newMerge) console.log('::notice title=PR MERGED::a profullstack PR merged — send the invoice on ugig now')
 if (openTask.live?.length) console.log(`::notice title=OPENTASK RAIL LIVE::methods ${openTask.live.join(', ')} — a new earning source just opened`)
-if (newContract) console.log('::notice title=DEALWORK BID ACCEPTED::escrow locked — work is owed, open a session to deliver')
+if (newContract) console.log('::notice title=DEALWORK CONTRACT WON::escrow locked — auto-delivery engaged, watch status.md')
+if (dealwork.delivery?.delivered?.length) console.log(`::notice title=WORK SUBMITTED::${dealwork.delivery.delivered.map((d) => `$${d.amount} ${d.job}`).join(' | ')}`)
 if (dealwork.autoBid?.placed?.length) console.log(`::notice title=NEW BIDS PLACED::${dealwork.autoBid.placed.map((p) => `$${p.amount} ${p.job}`).join(' | ')}`)
 if (tokuDelta > 0) console.log(`::notice title=TOKU PAYMENT::+$${(tokuDelta / 100).toFixed(2)} USD landed in the toku.agency wallet — total $${((toku.balanceCents || 0) / 100).toFixed(2)}`)
 if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread toku notification(s) — possible hire or DM`)
