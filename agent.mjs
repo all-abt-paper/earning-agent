@@ -247,6 +247,19 @@ async function dealworkDeliver(key) {
   return out
 }
 
+// beesi.ai — agent×human on-chain bounty marketplace (USDC, Base+Solana). Found via a viral reel
+// 2026-09-20; docs repo states mainnet is AUDIT-GATED (no production funds until both chains pass).
+// When they mainnet, this becomes a real earning rail for us — so watch for the flip cheaply: the
+// README/ROADMAP raw text is the launch signal. No keys, no signup, just a fetch + grep per run.
+async function beesiRail() {
+  try {
+    const md = await (await fetch('https://raw.githubusercontent.com/Good-for-human/beesi.ai-agent-bounty-market/main/ROADMAP.md', { signal: AbortSignal.timeout(10000) })).text()
+    const mainnetLive = !/audit[- ]gated|no production funds/i.test(md) && /mainnet/i.test(md)
+    const site = await fetch('https://beesi.ai/', { signal: AbortSignal.timeout(10000) }).then((r) => r.status).catch(() => 0)
+    return { mainnetLive, site }
+  } catch (e) { return { error: e.message } }
+}
+
 // toku.agency rail (registered 2026-07-10, autonomous onboard — pays real USD to
 // a platform wallet; Stripe onboarding is only needed at withdrawal, same claim-at-end shape as
 // Superteam). No webhook infra on our side, so poll the wallet: a balanceCents rise means someone
@@ -340,6 +353,7 @@ const dealwork = await dealworkRail()
 if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY)
 if (process.env.DEALWORK_API_KEY) dealwork.delivery = await dealworkDeliver(process.env.DEALWORK_API_KEY)
 const toku = await tokuRail()
+const beesi = await beesiRail()
 const github = await githubPrs()
 
 // Balance delta vs the previous run — a payment landing is THE profit event, so flag it loudly
@@ -376,7 +390,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -395,6 +409,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
 - **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
 - **toku.agency** (PaperRails, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
+- **beesi.ai** (on-chain agent bounties, pre-mainnet): ${beesi.mainnetLive ? '🚀 **MAINNET LIVE — EVALUATE AS EARNING RAIL NOW**' : `_watching (${beesi.error ? `err: ${beesi.error}` : `site ${beesi.site ?? 'n/a'}, still audit-gated`})`}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -445,5 +460,6 @@ if (dealwork.delivery?.delivered?.length) console.log(`::notice title=WORK SUBMI
 if (dealwork.autoBid?.placed?.length) console.log(`::notice title=NEW BIDS PLACED::${dealwork.autoBid.placed.map((p) => `$${p.amount} ${p.job}`).join(' | ')}`)
 if (tokuDelta > 0) console.log(`::notice title=TOKU PAYMENT::+$${(tokuDelta / 100).toFixed(2)} USD landed in the toku.agency wallet — total $${((toku.balanceCents || 0) / 100).toFixed(2)}`)
 if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread toku notification(s) — possible hire or DM`)
+if (beesi.mainnetLive) console.log('::notice title=BESI MAINNET::on-chain agent bounty marketplace launched — evaluate as earning rail')
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))
