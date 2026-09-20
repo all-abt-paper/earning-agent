@@ -177,11 +177,12 @@ async function dealworkAutoBid(key) {
 // ===== AUTONOMOUS DELIVERY (added 2026-09-20) =====
 // When a bid wins, the contract appears with escrow locked. This engine takes it from "won"
 // to "submitted" with no human: START_WORK → kickoff message → generate the deliverable →
-// POST deliverables → SUBMIT_WORK with the deliverableId. Generation uses GitHub Models
-// (free, GH_MODELS_TOKEN secret with models:read) when available. HONESTY GUARDRAIL: without
-// a working generator it NEVER submits placeholder junk — it asks the buyer for missing input
-// and alerts the human instead. Revisions: buyer messages newer than our last delivery trigger
-// a v2 with the feedback incorporated. Max 1 delivery per run, per-contract once-only state.
+// POST deliverables → SUBMIT_WORK with the deliverableId. Generation uses Pollinations
+// (keyless free OpenAI-compatible API) — GH_MODELS_TOKEN was retired with GitHub Models
+// (retired 2026-07-30). HONESTY GUARDRAIL: without a working generator it NEVER submits
+// placeholder junk — it asks the buyer for missing input and alerts the human instead.
+// Revisions: buyer messages newer than our last delivery trigger a v2 with the feedback
+// incorporated. Max 1 delivery per run, per-contract once-only state.
 const DW_API = 'https://dealwork.ai/api/v1'
 const dwJson = async (path, key, opts = {}) => {
   const r = await fetch(`${DW_API}${path}`, { ...opts, headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(15000) })
@@ -191,9 +192,11 @@ const dwJson = async (path, key, opts = {}) => {
 async function llmDeliverable(title, desc, feedback, token) {
   const sys = 'You are PaperRails, an autonomous coding agent delivering paid work on a freelance marketplace. Produce the COMPLETE, submission-ready deliverable for the job below. Full file contents in fenced code blocks when code is asked for; OpenAPI 3.0 YAML for API-docs jobs; a structured severity-ranked report with concrete patches for security reviews. Specific and working — no placeholders, no TODOs. Start with a 3-line summary, then the deliverable.'
   const user = `JOB TITLE: ${title}\n\nJOB BRIEF:\n${desc}\n${feedback ? `\nBUYER FEEDBACK TO INCORPORATE:\n${feedback}\n` : ''}\nProduce the deliverable now.`
-  for (const [url, model] of [['https://models.github.ai/inference/chat/completions', 'openai/gpt-4o-mini'], ['https://models.inference.ai.azure.com/chat/completions', 'gpt-4o-mini']]) {
+  for (const [url, model] of [['https://text.pollinations.ai/openai', 'openai']]) {
     try {
-      const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }], max_tokens: 4000, temperature: 0.3 }), signal: AbortSignal.timeout(60000) })
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) headers.Authorization = `Bearer ${token}`
+      const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }], max_tokens: 4000, temperature: 0.3 }), signal: AbortSignal.timeout(90000) })
       if (!r.ok) continue
       const text = (await r.json())?.choices?.[0]?.message?.content
       if (text && text.length > 200) return text
@@ -228,10 +231,9 @@ async function dealworkDeliver(key) {
         await dwJson(`/contracts/${c.id}/events`, key, { method: 'POST', body: JSON.stringify({ type: 'START_WORK' }) })
         await dwJson(`/contracts/${c.id}/messages`, key, { method: 'POST', body: JSON.stringify({ content: 'PaperRails here (autonomous AI agent — disclosed). Starting now: I will read the brief, produce the deliverable, and submit for review within about an hour. If any input would sharpen the result (dataset, endpoints, code, format), reply here.', attachments: [] }) })
       }
-      const token = process.env.GH_MODELS_TOKEN
-      const body = token ? await llmDeliverable(title, desc, feedback, token) : null
+      const body = await llmDeliverable(title, desc, feedback, process.env.GH_MODELS_TOKEN)
       if (!body) {
-        out.errors.push(`${c.id.slice(0, 8)}: no working generator (GH_MODELS_TOKEN) — deferred, human alert fired`)
+        out.errors.push(`${c.id.slice(0, 8)}: no working generator (LLM unreachable) — deferred, human alert fired`)
         continue
       }
       await dwJson(`/contracts/${c.id}/messages`, key, { method: 'POST', body: JSON.stringify({ content: `Update: the deliverable is generated and being submitted for review now${feedback ? ' with your feedback incorporated' : ''}.`, attachments: [] }) })
