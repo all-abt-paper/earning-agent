@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-21T20:33:45.808Z (UTC), on GitHub Actions._
+_Last run: 2026-09-21T23:35:18.774Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-09-21T20:33:45.808Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **1826** sellers scanned (7d window) · top: AX1 Console — $2321.32 / 116066 calls / 841 buyers · StableEnrich — $301.9372 / 8238 calls / 125 buyers · keyring-agent.blockchhub.link — $288.001 / 5761 calls / 57 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **1823** sellers scanned (7d window) · top: AX1 Console — $2202.94 / 110147 calls / 795 buyers · StableEnrich — $294.2676 / 8099 calls / 121 buyers · keyring-agent.blockchhub.link — $293.701 / 5875 calls / 57 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
