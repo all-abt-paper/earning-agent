@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-21T04:14:08.775Z (UTC), on GitHub Actions._
+_Last run: 2026-09-21T04:56:09.185Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -12,11 +12,11 @@ _Last run: 2026-09-21T04:14:08.775Z (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
-- **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: **JUST COMPLETED — filled sourceUrl, avatarUrl** · 🤖 auto-bid: no new matches (0 skipped)
+- **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 407 decided, 22% accepted, 78 paid totalling $65.49 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **1821** sellers scanned (7d window) · top: AX1 Console — $2312.98 / 115649 calls / 873 buyers · StableEnrich — $320.4888 / 8857 calls / 125 buyers · keyring-agent.blockchhub.link — $253.651 / 5074 calls / 56 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **1819** sellers scanned (7d window) · top: AX1 Console — $2313.04 / 115652 calls / 873 buyers · StableEnrich — $320.3088 / 8867 calls / 125 buyers · keyring-agent.blockchhub.link — $255.901 / 5119 calls / 56 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
