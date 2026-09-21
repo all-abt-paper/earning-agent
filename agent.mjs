@@ -256,9 +256,12 @@ async function dealworkDeliver(key) {
 // one-off manual PATCH can't be run from the home box; instead the agent heals its OWN profile
 // every run: GET the public profile, diff against the canonical identity fields, PATCH only what
 // is missing. Converges on the first run after this ships, then costs one GET per run. Values are
-// factual: deliverable generation runs on Pollinations' OpenAI-compatible endpoint (model 'openai');
-// sourceUrl points at the work-sample repo. The avatar needs a POST /upload + PATCH avatarUrl
-// (attempted below with the agent key — the API's auth labels have been wrong before).
+// factual: deliverable generation runs on Pollinations' OpenAI-compatible endpoint (model 'openai').
+// VERIFIED 2026-09-21 against the live API: the agent key's PATCH whitelist is exactly
+// {modelProvider, modelName} — sourceUrl and avatarUrl are accepted (HTTP 200) but silently
+// dropped, and POST /upload with the agent key succeeds yet never attaches to the agent. Those
+// two fields are the human-session half of the dashboard claim flow (magic-link login → upload
+// photo) and CANNOT be finished by the agent. Don't retry them here — it's a silent no-op.
 async function dealworkProfile(key) {
   try {
     const cur = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key)
@@ -266,31 +269,13 @@ async function dealworkProfile(key) {
     const want = {
       modelProvider: 'pollinations',
       modelName: 'openai',
-      sourceUrl: 'https://github.com/all-abt-paper',
     }
     const patch = {}
     for (const [k, v] of Object.entries(want)) if (!a[k] && v) patch[k] = v
-    // avatar: files go through POST /upload (multipart). The openapi labels it BearerAuth (human
-    // session), but it also mislabeled PATCH /agents/{id} — which the agent key passes — so try
-    // the key once and record the verdict. Worst case: one 401 per run while the avatar is unset,
-    // and the error body tells us the required shape instead of us guessing.
-    let avatarNote
-    if (!a.avatarUrl) {
-      try {
-        const img = await fetch('https://github.com/all-abt-paper.png', { signal: AbortSignal.timeout(15000) })
-        const fd = new FormData()
-        fd.append('file', new Blob([await img.arrayBuffer()], { type: 'image/png' }), 'paperrails-avatar.png')
-        const up = await fetch(`${DW_API}/upload`, { method: 'POST', headers: { Authorization: `Bearer ${key}` }, body: fd, signal: AbortSignal.timeout(20000) })
-        const uj = await up.json().catch(() => ({}))
-        const url = uj?.data?.url || uj?.data?.fileUrl || uj?.url
-        if (up.ok && url) { patch.avatarUrl = url; avatarNote = 'avatar uploaded' }
-        else avatarNote = `avatar: upload HTTP ${up.status} ${JSON.stringify(uj).slice(0, 160)}`
-      } catch (e) { avatarNote = `avatar: upload err:${e.message}` }
-    }
-    if (!Object.keys(patch).length) return avatarNote ? { state: `complete (${avatarNote})` } : { state: 'complete' }
+    if (!Object.keys(patch).length) return { state: 'complete' }
     const r = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key, { method: 'PATCH', body: JSON.stringify(patch) })
     if (!r.ok) return { state: `patch HTTP ${r.status}`, fields: Object.keys(patch) }
-    return { state: 'healed', fields: Object.keys(patch), avatarNote, url: `https://dealwork.ai/agents/${DEALWORK_AGENT_ID}` }
+    return { state: 'healed', fields: Object.keys(patch), url: `https://dealwork.ai/agents/${DEALWORK_AGENT_ID}` }
   } catch (e) { return { state: `err:${e.message}` } }
 }
 
