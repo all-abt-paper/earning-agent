@@ -249,6 +249,33 @@ async function dealworkDeliver(key) {
   return out
 }
 
+// ===== PROFILE SELF-HEAL (added 2026-09-21) =====
+// The PaperRails dealwork profile went live (2026-09-20) with the bio set but modelProvider,
+// modelName and avatarUrl null — buyers browsing the agent directory see an unfinished card and
+// the human asked for it to be finished. The API key lives only in GitHub Actions secrets, so a
+// one-off manual PATCH can't be run from the home box; instead the agent heals its OWN profile
+// every run: GET the public profile, diff against the canonical identity fields, PATCH only what
+// is missing. Converges on the first run after this ships, then costs one GET per run. Values are
+// factual: deliverable generation runs on Pollinations' OpenAI-compatible endpoint (model 'openai'),
+// and the avatar is the all-abt-paper GitHub avatar (verified reachable 2026-09-21).
+async function dealworkProfile(key) {
+  try {
+    const cur = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key)
+    const a = cur.data || {}
+    const want = {
+      modelProvider: 'pollinations',
+      modelName: 'openai',
+      avatarUrl: 'https://github.com/all-abt-paper.png',
+    }
+    const patch = {}
+    for (const [k, v] of Object.entries(want)) if (!a[k] && v) patch[k] = v
+    if (!Object.keys(patch).length) return { state: 'complete' }
+    const r = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key, { method: 'PATCH', body: JSON.stringify(patch) })
+    if (!r.ok) return { state: `patch HTTP ${r.status}`, fields: Object.keys(patch) }
+    return { state: 'healed', fields: Object.keys(patch), url: `https://dealwork.ai/agents/${DEALWORK_AGENT_ID}` }
+  } catch (e) { return { state: `err:${e.message}` } }
+}
+
 // beesi.ai — agent×human on-chain bounty marketplace (USDC, Base+Solana). Found via a viral reel
 // 2026-09-20; docs repo states mainnet is AUDIT-GATED (no production funds until both chains pass).
 // When they mainnet, this becomes a real earning rail for us — so watch for the flip cheaply: the
@@ -259,6 +286,66 @@ async function beesiRail() {
     const mainnetLive = !/audit[- ]gated|no production funds/i.test(md) && /mainnet/i.test(md)
     const site = await fetch('https://beesi.ai/', { signal: AbortSignal.timeout(10000) }).then((r) => r.status).catch(() => 0)
     return { mainnetLive, site }
+  } catch (e) { return { error: e.message } }
+}
+
+// deskcrew.io support-bounty rail (found via a viral reel 2026-09-21 — the same tip-line that
+// surfaced beesi.ai). x402 pay-per-call marketplace for customer-support bounties: listing is FREE,
+// entering a draft costs ~$0.06, and a HUMAN approves the winner — the submitting wallet is then
+// paid workerShare (85%) of the reward in USDC (Base/Solana, server covers Solana fees). Our wallet
+// is at $0, so this is a WATCH-ONLY rail: the board publishes its own honest stats in the manifest's
+// extensions.earn.info (open bounties, pot, attempt cost, accepted rate, total paid out) — we read
+// that every run and alert when an open bounty first appears. No key, no spend. The board's own
+// numbers (Sept 2026) keep us honest: 407 decided, 22% accepted, 78 payouts totalling $65.49.
+async function deskCrewRail() {
+  try {
+    const j = await (await fetch('https://deskcrew.io/.well-known/x402', { signal: AbortSignal.timeout(10000) })).json()
+    const earn = j?.extensions?.earn?.info || {}
+    const h = (earn.history && typeof earn.history === 'object' && !Array.isArray(earn.history)) ? earn.history : {}
+    return {
+      live: true,
+      updatedAt: j.updatedAt || null,
+      openBounties: typeof earn.open === 'number' ? earn.open : undefined,
+      potUsd: typeof earn.openValueUsd === 'number' ? earn.openValueUsd : undefined,
+      attemptCostUsd: typeof earn.attemptCostUsd === 'number' ? earn.attemptCostUsd : undefined,
+      workerShare: typeof earn.workerShare === 'number' ? earn.workerShare : undefined,
+      decided: typeof h.decided === 'number' ? h.decided : undefined,
+      acceptedRate: typeof h.acceptedRate === 'number' ? h.acceptedRate : undefined,
+      paidCount: typeof h.paidCount === 'number' ? h.paidCount : undefined,
+      paidTotalUsd: typeof h.paidTotalUsd === 'number' ? h.paidTotalUsd : undefined,
+    }
+  } catch (e) { return { live: false, error: e.message } }
+}
+
+// Agent402 (agent402.tools) — 500+ pay-per-call tools over x402/MCP (same reel wave, 2026-09-21);
+// it is the biggest visible player in the exact market our token-intel service sells into. Its
+// /api/leaderboard is an ON-CHAIN 7-day ranking of every x402 seller by Base USDC settled volume
+// (free, no key) — for us that is (a) a weekly market-size number for the Colosseum pitch and
+// (b) the benchmark our own service's numbers get judged against once x402scan lists us. Watch-only.
+async function agent402Rail() {
+  try {
+    const j = await (await fetch('https://agent402.tools/api/leaderboard', { signal: AbortSignal.timeout(10000) })).json()
+    return {
+      asOf: j.asOf || null,
+      window: j.windowLabel || null,
+      sellers: j.scannedSellers,
+      top: (j.leaderboard || []).slice(0, 3).map((l) => ({ name: l.name, calls: l.callsSettled, usd: l.totalUsd, buyers: l.uniqueBuyers })),
+    }
+  } catch (e) { return { error: e.message } }
+}
+
+// task-bounty.com — GitHub bug-fix bounties ($10–100s, solver keeps 80%, paid USDC/ETH/BTC in 1
+// business day; fixes verified in their sandbox). Public REST: GET /api/v1/tasks needs NO key, so
+// we watch it like the other free rails: a non-empty board = the rail is LIVE and worth a human
+// decision to register an agent key (dashboard signup) and attempt bounties. Empty is the normal
+// state (checked 2026-09-21), so alert ONLY on the empty→non-empty transition — one signal, not spam.
+async function taskBountyRail() {
+  try {
+    const r = await fetch('https://www.task-bounty.com/api/v1/tasks', { signal: AbortSignal.timeout(10000) })
+    if (!r.ok) return { error: `HTTP ${r.status}` }
+    const d = await r.json()
+    const tasks = Array.isArray(d) ? d : d.data || []
+    return { count: tasks.length, sample: tasks.slice(0, 5).map((t) => ({ id: t.id || t.task_id, title: (t.title || '').slice(0, 50), amount: t.amount ?? t.reward ?? t.payout })) }
   } catch (e) { return { error: e.message } }
 }
 
@@ -354,17 +441,21 @@ const openTask = await openTaskRail()
 const dealwork = await dealworkRail()
 if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY)
 if (process.env.DEALWORK_API_KEY) dealwork.delivery = await dealworkDeliver(process.env.DEALWORK_API_KEY)
+if (process.env.DEALWORK_API_KEY) dealwork.profile = await dealworkProfile(process.env.DEALWORK_API_KEY)
 const toku = await tokuRail()
 const beesi = await beesiRail()
+const deskcrew = await deskCrewRail()
+const agent402 = await agent402Rail()
+const taskbounty = await taskBountyRail()
 const github = await githubPrs()
 
 // Balance delta vs the previous run — a payment landing is THE profit event, so flag it loudly
 // instead of leaving it as a quietly-changed number nobody reads. Also carry forward the previous
 // winners state so we can notify only on the TRANSITION (fire once, not every run forever).
-let prevUsdc = null, prevSol = null, prevSolNative = null, prevActionable = 0, prevMerged = 0, prevTokuCents = null
+let prevUsdc = null, prevSol = null, prevSolNative = null, prevActionable = 0, prevMerged = 0, prevTokuCents = null, prevDeskcrew = null, prevTaskBounty = 0
 try {
   const lines = readFileSync(new URL('./history.jsonl', import.meta.url), 'utf8').trim().split('\n')
-  if (lines.length) { const p = JSON.parse(lines[lines.length - 1]); if (typeof p.baseUsdc === 'number') prevUsdc = p.baseUsdc; if (typeof p.solUsdc === 'number') prevSol = p.solUsdc; if (typeof p.solNative === 'number') prevSolNative = p.solNative; prevActionable = p.dealwork?.actionable || 0; prevMerged = p.github?.merged || 0; if (typeof p.toku?.balanceCents === 'number') prevTokuCents = p.toku.balanceCents }
+  if (lines.length) { const p = JSON.parse(lines[lines.length - 1]); if (typeof p.baseUsdc === 'number') prevUsdc = p.baseUsdc; if (typeof p.solUsdc === 'number') prevSol = p.solUsdc; if (typeof p.solNative === 'number') prevSolNative = p.solNative; prevActionable = p.dealwork?.actionable || 0; prevMerged = p.github?.merged || 0; if (typeof p.toku?.balanceCents === 'number') prevTokuCents = p.toku.balanceCents; if (typeof p.deskcrew?.openBounties === 'number') prevDeskcrew = p.deskcrew.openBounties; if (typeof p.taskbounty?.count === 'number') prevTaskBounty = p.taskbounty.count }
 } catch {}
 const delta = (typeof usdc === 'number' && typeof prevUsdc === 'number') ? usdc - prevUsdc : 0
 // ugig's PREFERRED payout is usdc_sol, so a real payment most likely lands on Solana — diff it too or
@@ -378,11 +469,17 @@ const newContract = (dealwork.actionable || 0) > prevActionable
 const newMerge = (github.merged || 0) > prevMerged
 // toku wallet is platform-custodied USD cents; a rise = someone paid for our work there. Transition-only.
 const tokuDelta = (typeof toku.balanceCents === 'number' && typeof prevTokuCents === 'number') ? toku.balanceCents - prevTokuCents : 0
+// deskcrew board publishes its own open-bounty count in the manifest; a rise = a fresh support
+// bounty we could (human decision) evaluate. Transition-only, same discipline as the money events.
+const deskcrewNewBounty = typeof prevDeskcrew === 'number' && (deskcrew.openBounties || 0) > prevDeskcrew
+// task-bounty board is normally empty; it waking up means real code-fix bounties are claimable.
+// Empty→non-empty transition only — the one moment a signup is worth the human's time.
+const taskBountyLive = typeof prevTaskBounty === 'number' && prevTaskBounty === 0 && (taskbounty.count || 0) > 0
 
 // Notify the human ONLY on the transition into a real event (money just
 // landed) — the workflow turns this sentinel into a failed run, which GitHub emails the repo owner.
 // Writing it only on the transition means one email, not a failure on every subsequent run.
-const notify = delta > 0 || solDelta > 0 || solNativeDelta > 0 || newContract || newMerge || tokuDelta > 0
+const notify = delta > 0 || solDelta > 0 || solNativeDelta > 0 || newContract || newMerge || tokuDelta > 0 || deskcrewNewBounty || taskBountyLive
 
 // remember which listing slugs we have already seen, so we can flag genuinely NEW ones
 let seen = []
@@ -392,7 +489,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -409,9 +506,12 @@ _Last run: ${now} (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
-- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
+- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.profile ? ` · 👤 profile: ${dealwork.profile.state === 'complete' ? 'complete ✓' : dealwork.profile.state === 'healed' ? `**JUST COMPLETED — filled ${dealwork.profile.fields.join(', ')}**` : `⚠️ ${dealwork.profile.state}`}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
 - **toku.agency** (PaperRails, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): ${beesi.mainnetLive ? '🚀 **MAINNET LIVE — EVALUATE AS EARNING RAIL NOW**' : `_watching (${beesi.error ? `err: ${beesi.error}` : `site ${beesi.site ?? 'n/a'}, still audit-gated`})`}
+- **deskcrew.io** (support bounties, human approval pays ${deskcrew.workerShare ? Math.round(deskcrew.workerShare * 100) + '%' : '85%'}): ${deskcrew.live ? `board live · open bounties **${deskcrew.openBounties ?? '?'}** (pot $${deskcrew.potUsd ?? '?'}, entry $${deskcrew.attemptCostUsd ?? '?'}) · board history: ${deskcrew.decided ?? '?'} decided, ${(deskcrew.acceptedRate != null ? Math.round(deskcrew.acceptedRate * 100) : '?')}% accepted, ${deskcrew.paidCount ?? '?'} paid totalling $${deskcrew.paidTotalUsd ?? '?'}${deskcrewNewBounty ? ' · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**' : ' · watching (entry costs real USDC — wallet is at $0, so observe only)'}` : `_err: ${deskcrew.error}_`}
+- **x402 market size (Agent402 on-chain leaderboard)**: ${agent402.error ? `_err: ${agent402.error}_` : `**${agent402.sellers}** sellers scanned (${agent402.window} window) · top: ${agent402.top.map((t) => `${t.name} — $${t.usd} / ${t.calls} calls / ${t.buyers} buyers`).join(' · ')}`}
+- **task-bounty.com** (fix real GitHub bugs, keep 80%): ${taskbounty.error ? `_err: ${taskbounty.error}_` : taskbounty.count ? `🎯 **BOARD LIVE — ${taskbounty.count} open bounty(s): ${taskbounty.sample.map((s) => `${s.id} "${s.title}" $${s.amount}`).join(' · ')} — register an agent key and attempt**` : 'board empty (checked every run — signup is only worth it the day bounties appear)' }
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -444,6 +544,10 @@ if (notify) {
     ? `💵 PR MERGED (${now}) — a profullstack PR was merged; send the invoice on ugig now to get paid`
     : newContract
     ? `⚡ DEALWORK CONTRACT WON (${now}) — escrow locked ($${(dealwork.contracts?.find((c) => ['escrow_locked', 'in_progress'].includes(c.state))?.amount) ?? '?'}); PaperRails auto-delivery is engaged — watch status.md`
+    : taskBountyLive
+    ? `🛠️ TASK-BOUNTY BOARD LIVE (${now}) — ${taskbounty.count} open code-fix bounty(s) on task-bounty.com (80% to solver, paid in 1 business day); register an agent key to attempt`
+    : deskcrewNewBounty
+    ? `🎯 DESKCREW BOUNTY (${now}) — open support bounty(s) on deskcrew.io (entry ~$0.06, pays 85% of reward on human approval; read the board's published history first)`
     : `event (${now})`
   writeFileSync(NOTIFY, msg + '\n')
 } else {
@@ -460,8 +564,12 @@ if (openTask.live?.length) console.log(`::notice title=OPENTASK RAIL LIVE::metho
 if (newContract) console.log('::notice title=DEALWORK CONTRACT WON::escrow locked — auto-delivery engaged, watch status.md')
 if (dealwork.delivery?.delivered?.length) console.log(`::notice title=WORK SUBMITTED::${dealwork.delivery.delivered.map((d) => `$${d.amount} ${d.job}`).join(' | ')}`)
 if (dealwork.autoBid?.placed?.length) console.log(`::notice title=NEW BIDS PLACED::${dealwork.autoBid.placed.map((p) => `$${p.amount} ${p.job}`).join(' | ')}`)
+if (dealwork.profile?.state === 'healed') console.log(`::notice title=DEALWORK PROFILE COMPLETED::filled ${dealwork.profile.fields.join(', ')} — https://dealwork.ai/agents/${DEALWORK_AGENT_ID}`)
+else if (dealwork.profile && dealwork.profile.state !== 'complete') console.log(`::warning title=DEALWORK PROFILE::${dealwork.profile.state}`)
 if (tokuDelta > 0) console.log(`::notice title=TOKU PAYMENT::+$${(tokuDelta / 100).toFixed(2)} USD landed in the toku.agency wallet — total $${((toku.balanceCents || 0) / 100).toFixed(2)}`)
 if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread toku notification(s) — possible hire or DM`)
 if (beesi.mainnetLive) console.log('::notice title=BESI MAINNET::on-chain agent bounty marketplace launched — evaluate as earning rail')
+if (deskcrewNewBounty) console.log('::notice title=DESKCREW BOUNTY::open support bounty on deskcrew.io — entry ~$0.06, pays 85% on human approval')
+if (taskBountyLive) console.log(`::notice title=TASK-BOUNTY BOARD LIVE::${taskbounty.count} open code-fix bounty(s) on task-bounty.com — 80% to solver`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))
