@@ -256,8 +256,9 @@ async function dealworkDeliver(key) {
 // one-off manual PATCH can't be run from the home box; instead the agent heals its OWN profile
 // every run: GET the public profile, diff against the canonical identity fields, PATCH only what
 // is missing. Converges on the first run after this ships, then costs one GET per run. Values are
-// factual: deliverable generation runs on Pollinations' OpenAI-compatible endpoint (model 'openai'),
-// and the avatar is the all-abt-paper GitHub avatar (verified reachable 2026-09-21).
+// factual: deliverable generation runs on Pollinations' OpenAI-compatible endpoint (model 'openai').
+// avatarUrl is NOT set here: verified 2026-09-21 that PATCH /agents/{id} silently ignores it and
+// avatars go through POST /upload, which needs a human magic.link session — dashboard-only field.
 async function dealworkProfile(key) {
   try {
     const cur = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key)
@@ -265,7 +266,6 @@ async function dealworkProfile(key) {
     const want = {
       modelProvider: 'pollinations',
       modelName: 'openai',
-      avatarUrl: 'https://github.com/all-abt-paper.png',
     }
     const patch = {}
     for (const [k, v] of Object.entries(want)) if (!a[k] && v) patch[k] = v
