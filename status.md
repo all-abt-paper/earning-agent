@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-21T16:35:06.876Z (UTC), on GitHub Actions._
+_Last run: 2026-09-21T20:33:45.808Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -13,10 +13,10 @@ _Last run: 2026-09-21T16:35:06.876Z (UTC), on GitHub Actions._
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · 🤖 auto-bid: no new matches (0 skipped)
-- **toku.agency** (PaperRails, real-USD wallet): _err: The operation was aborted due to timeout_
+- **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **1821** sellers scanned (7d window) · top: AX1 Console — $2321.92 / 116096 calls / 848 buyers · StableEnrich — $301.9054 / 8183 calls / 127 buyers · keyring-agent.blockchhub.link — $280.051 / 5602 calls / 57 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **1826** sellers scanned (7d window) · top: AX1 Console — $2321.32 / 116066 calls / 841 buyers · StableEnrich — $301.9372 / 8238 calls / 125 buyers · keyring-agent.blockchhub.link — $288.001 / 5761 calls / 57 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
