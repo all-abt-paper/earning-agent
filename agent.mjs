@@ -455,6 +455,18 @@ async function algoraRail() {
         b.amt = body.match(/\$[\d,]+/)?.[0] || null
       } catch {}
     }
+    // Still null → the figure lives in the algora-pbc[bot] comment ("## 💎 $250 bounty"), so scan
+    // the comment thread and prefer a $ figure inside a bounty-flavored comment over a random one.
+    for (const b of items) {
+      if (b.amt) continue
+      try {
+        const cr = await fetch(`https://api.github.com/repos/${b.repo}/issues/${b.num}/comments?per_page=20`, { headers, signal: AbortSignal.timeout(10000) })
+        if (!cr.ok) continue
+        const bodies = ((await cr.json()) || []).map((c) => c.body || '')
+        const botHit = bodies.find((x) => /💎|bounty/i.test(x) && /\$[\d,]+/.test(x))
+        b.amt = botHit?.match(/\$[\d,]+/)?.[0] || bodies.find((x) => /\$[\d,]+/.test(x))?.match(/\$[\d,]+/)?.[0] || null
+      } catch {}
+    }
     return { total: d.total_count ?? items.length, items, newestAt: items[0]?.at || null }
   } catch (e) { return { error: e.message } }
 }
