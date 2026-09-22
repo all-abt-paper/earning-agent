@@ -444,6 +444,17 @@ async function algoraRail() {
       amt: (p.title || '').match(/\$[\d,]+/)?.[0] || null,
       at: p.created_at,
     }))
+    // Algora doesn't always put the amount in the title — the issue body (bot-posted bounty line)
+    // usually has it. One cheap authenticated call per listed item; keep the largest figure found.
+    for (const b of items) {
+      if (b.amt) continue
+      try {
+        const ir = await fetch(`https://api.github.com/repos/${b.repo}/issues/${b.num}`, { headers, signal: AbortSignal.timeout(10000) })
+        if (!ir.ok) continue
+        const body = (await ir.json()).body || ''
+        b.amt = body.match(/\$[\d,]+/)?.[0] || null
+      } catch {}
+    }
     return { total: d.total_count ?? items.length, items, newestAt: items[0]?.at || null }
   } catch (e) { return { error: e.message } }
 }
