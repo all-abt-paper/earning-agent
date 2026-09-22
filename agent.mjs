@@ -384,6 +384,36 @@ async function algoraAttempt() {
   return out
 }
 
+// ---------------------------------------------------------------------------
+// Security-research machine gate (2026-09-22): the CODE half of
+// SECURITY-RESEARCH-POLICY.md. The policy file is the law; this is the lock.
+// Reads security-programs.json (HUMAN-editable only — no code path in this agent
+// writes it), validates every entry's shape, and reports the gate state. An
+// empty allowlist means zero security activity BY CONSTRUCTION, not by promise.
+// Any future attempt must resolve to an allowlist entry (target + asset +
+// bugClass + explicit safeHarbor) or it is refused, logged to
+// security-audit.jsonl with the policy's refusal-rule number, and surfaced in
+// status.md. Refusals are never silent; the audit log is append-only.
+// ---------------------------------------------------------------------------
+function loadSecurityPrograms() {
+  try {
+    const j = JSON.parse(readFileSync(new URL('./security-programs.json', import.meta.url), 'utf8'))
+    const problems = []
+    const programs = (j.programs || []).filter((p, i) => {
+      const ok = p && typeof p.program === 'string' && typeof p.url === 'string' && typeof p.asset === 'string' && Array.isArray(p.bugClasses) && p.bugClasses.length > 0 && p.safeHarbor === true && p.source === 'human' && typeof p.added === 'string'
+      if (!ok) problems.push(`allowlist entry #${i + 1} malformed — ignored (needs program/url/asset/bugClasses, safeHarbor===true, source:'human', added)`)
+      return ok
+    })
+    return { programs, problems, open: programs.length > 0 }
+  } catch (e) { return { programs: [], problems: [`allowlist unreadable (${e.message}) — gate CLOSED`], open: false } }
+}
+function securityGate() {
+  const { programs, problems, open } = loadSecurityPrograms()
+  let auditLines = 0
+  try { auditLines = readFileSync(new URL('./security-audit.jsonl', import.meta.url), 'utf8').trim().split('\n').filter(Boolean).length } catch {}
+  return { gate: open ? 'OPEN' : 'CLOSED', programs: programs.map((p) => ({ program: p.program, asset: p.asset, safeHarbor: p.safeHarbor })), problems, auditLines, policy: 'SECURITY-RESEARCH-POLICY.md' }
+}
+
 async function dealworkDeliver(key) {
   const out = { checked: 0, delivered: [], errors: [] }
   let state = {}
@@ -702,6 +732,7 @@ const agent402 = await agent402Rail()
 const taskbounty = await taskBountyRail()
 const algora = await algoraRail()
 const algoraTry = await algoraAttempt()
+const security = await securityGate()
 const github = await githubPrs()
 
 // Balance delta vs the previous run — a payment landing is THE profit event, so flag it loudly
@@ -748,7 +779,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, algoraTry, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, algoraTry, security, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -771,7 +802,9 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **deskcrew.io** (support bounties, human approval pays ${deskcrew.workerShare ? Math.round(deskcrew.workerShare * 100) + '%' : '85%'}): ${deskcrew.live ? `board live · open bounties **${deskcrew.openBounties ?? '?'}** (pot $${deskcrew.potUsd ?? '?'}, entry $${deskcrew.attemptCostUsd ?? '?'}) · board history: ${deskcrew.decided ?? '?'} decided, ${(deskcrew.acceptedRate != null ? Math.round(deskcrew.acceptedRate * 100) : '?')}% accepted, ${deskcrew.paidCount ?? '?'} paid totalling $${deskcrew.paidTotalUsd ?? '?'}${deskcrewNewBounty ? ' · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**' : ' · watching (entry costs real USDC — wallet is at $0, so observe only)'}` : `_err: ${deskcrew.error}_`}
 - **x402 market size (Agent402 on-chain leaderboard)**: ${agent402.error ? `_err: ${agent402.error}_` : `**${agent402.sellers}** sellers scanned (${agent402.window} window) · top: ${agent402.top.map((t) => `${t.name} — $${t.usd} / ${t.calls} calls / ${t.buyers} buyers`).join(' · ')}`}
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): ${taskbounty.error ? `_err: ${taskbounty.error}_` : taskbounty.count ? `🎯 **BOARD LIVE — ${taskbounty.count} open bounty(s): ${taskbounty.sample.map((s) => `${s.id} "${s.title}" $${s.amount}`).join(' · ')} — register an agent key and attempt**` : 'board empty (checked every run — signup is only worth it the day bounties appear)' }
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}${algoraTry ? ` · 🛠️ attempt (${algoraTry.mode}): ${algoraTry.target ? `**${algoraTry.target}**` : 'no eligible target this run'} — ${algoraTry.verdict || algoraTry.skipped.join('; ') || 'idle'}${algoraTry.pr ? ` → PR ${algoraTry.pr}` : ''}${algoraTry.withdrawn?.length ? ` · withdrew ${algoraTry.withdrawn.join(', ')} (gate red)` : ''}` : ''}`}
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}`}
+- **🛡️ security research** (policy-gated per ${security.policy}): gate **${security.gate}**${security.programs.length ? ` · authorized: ${security.programs.map((p) => `${p.program} (${p.asset})`).join(', ')}` : ' · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open)'} · audit log: ${security.auditLines} entries${security.problems.length ? ` · ⚠️ ${security.problems.join('; ')}` : ''}
+- **autoresearch bounty loop**: ${algoraTry ? `🛠️ attempt (${algoraTry.mode}): ${algoraTry.target ? `**${algoraTry.target}**` : 'no eligible target this run'} — ${algoraTry.verdict || algoraTry.skipped.join('; ') || 'idle'}${algoraTry.pr ? ` → PR ${algoraTry.pr}` : ''}${algoraTry.withdrawn?.length ? ` · withdrew ${algoraTry.withdrawn.join(', ')} (gate red)` : ''}` : 'idle'}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -835,5 +868,6 @@ if (taskBountyLive) console.log(`::notice title=TASK-BOUNTY BOARD LIVE::${taskbo
 if (algoraFresh.length) console.log(`::notice title=NEW ALGORA BOUNTIES::${algoraFresh.map((b) => `${b.repo}#${b.num} "${b.title}"`).join(' | ')}`)
 if (algoraTry?.pr) console.log(`::notice title=ALGORA PR OPENED::${algoraTry.pr} for ${algoraTry.target} — gate must go green before a human reviews it`)
 if (algoraTry?.withdrawn?.length) console.log(`::warning title=ALGORA PR WITHDRAWN::${algoraTry.withdrawn.join(', ')} failed the repo's own test gate — auto-closed`)
+if (security.problems.length) console.log(`::warning title=SECURITY ALLOWLIST PROBLEM::${security.problems.join('; ')} — gate stays CLOSED`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))

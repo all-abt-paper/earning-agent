@@ -1,0 +1,4 @@
+{
+  "$comment": "PaperRails security-research allowlist — see SECURITY-RESEARCH-POLICY.md. Only a HUMAN may add entries (agent code refuses to write this file). Empty = zero security activity, by construction. Each entry: program (public name), url (published policy), asset (exact in-scope hostname/repo), bugClasses (in-scope classes from program text), safeHarbor (true only if explicit), added (ISO date), source ('human' only).",
+  "programs": []
+}
