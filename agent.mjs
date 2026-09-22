@@ -263,6 +263,8 @@ async function dealworkDeliver(key) {
 // two fields are the human-session half of the dashboard claim flow (magic-link login → upload
 // photo) and CANNOT be finished by the agent. Don't retry them here — it's a silent no-op.
 async function dealworkProfile(key) {
+  const out = {}
+  // --- part 1: the AGENT's own card (verified working with the agent key) ---
   try {
     const cur = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key)
     const a = cur.data || {}
@@ -272,11 +274,32 @@ async function dealworkProfile(key) {
     }
     const patch = {}
     for (const [k, v] of Object.entries(want)) if (!a[k] && v) patch[k] = v
-    if (!Object.keys(patch).length) return { state: 'complete' }
-    const r = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key, { method: 'PATCH', body: JSON.stringify(patch) })
-    if (!r.ok) return { state: `patch HTTP ${r.status}`, fields: Object.keys(patch) }
-    return { state: 'healed', fields: Object.keys(patch), url: `https://dealwork.ai/agents/${DEALWORK_AGENT_ID}` }
-  } catch (e) { return { state: `err:${e.message}` } }
+    if (!Object.keys(patch).length) out.state = 'complete'
+    else {
+      const r = await dwJson(`/agents/${DEALWORK_AGENT_ID}`, key, { method: 'PATCH', body: JSON.stringify(patch) })
+      if (!r.ok) out.state = `patch HTTP ${r.status}`
+      else out.state = 'healed'
+      out.fields = Object.keys(patch)
+    }
+    out.url = `https://dealwork.ai/agents/${DEALWORK_AGENT_ID}`
+  } catch (e) { out.state = `err:${e.message}` }
+  // --- part 2: the HUMAN account's "Basic Information" form (bio/skills; the dashboard shape the
+  // owner saw half-filled). openapi: PATCH /profile {bio>=10, skills[], hourlyRate, timezone}.
+  // Auth labels here have been wrong twice, so probe with the agent key and let the server rule.
+  // Display name stays the owner's; hourlyRate is a price commitment — only the human sets that.
+  try {
+    const pf = await dwJson('/profile', key)
+    const p = pf.data || {}
+    const acctPatch = {}
+    if (!p.bio) acctPatch.bio = 'Human owner of PaperRails, an autonomous coding & data agent (TypeScript/Node, Python): REST APIs, web scraping, GitHub Actions automation, JSON/CSV data pipelines. Agent work samples: github.com/all-abt-paper'
+    if (!Array.isArray(p.skills) || !p.skills.length) acctPatch.skills = ['typescript', 'python', 'node.js', 'api-development', 'web-scraping', 'automation', 'data-pipelines', 'github-actions']
+    if (!Object.keys(acctPatch).length) out.acct = 'ok'
+    else {
+      const pr = await dwJson('/profile', key, { method: 'PATCH', body: JSON.stringify(acctPatch) })
+      out.acct = pr.ok ? `healed:${Object.keys(acctPatch).join('+')}` : `human-session-only (HTTP ${pr.status})`
+    }
+  } catch (e) { out.acct = `err:${e.message}` }
+  return out
 }
 
 // beesi.ai — agent×human on-chain bounty marketplace (USDC, Base+Solana). Found via a viral reel
@@ -509,7 +532,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **${openTask.state}**${openTask.live?.length ? ` · LIVE methods: ${openTask.live.join(', ')} — ACT NOW` : ' _(watching for revival; speaks x402-v2 our service already supports)_'}
-- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.profile ? ` · 👤 profile: ${dealwork.profile.state === 'complete' ? 'complete ✓' : dealwork.profile.state === 'healed' ? `**JUST COMPLETED — filled ${dealwork.profile.fields.join(', ')}**` : `⚠️ ${dealwork.profile.state}`}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
+- **dealwork.ai** (PaperRails): ${dealwork.skipped ? `_${dealwork.skipped}_` : dealwork.error ? `_err: ${dealwork.error}_` : `heartbeat **${dealwork.heartbeat}** · bids: ${dealwork.bids?.map((b) => `${b.status} $${b.amount}`).join(', ') || 'none'} · contracts: ${dealwork.contracts?.length ? dealwork.contracts.map((c) => `${c.state} $${c.amount ?? '?'}`).join(', ') : 'none'}${dealwork.actionable ? ' · ⚡ **ESCROW LOCKED — WORK IS OWED, open a session**' : ''}${dealwork.delivery ? ` · 📦 delivery: ${dealwork.delivery.delivered?.length ? `**SUBMITTED ${dealwork.delivery.delivered.map((d) => `$${d.amount} "${d.job}"`).join(' + ')}**` : dealwork.delivery.checked ? dealwork.delivery.errors?.length ? `⚠️ ${dealwork.delivery.errors.join('; ')}` : `${dealwork.delivery.checked} active, up to date` : 'none active'}` : ''}${dealwork.profile ? ` · 👤 profile: ${dealwork.profile.state === 'complete' ? 'complete ✓' : dealwork.profile.state === 'healed' ? `**JUST COMPLETED — filled ${dealwork.profile.fields.join(', ')}**` : `⚠️ ${dealwork.profile.state}`}${dealwork.profile.acct ? ` · acct: ${String(dealwork.profile.acct).startsWith('healed') ? `**${dealwork.profile.acct}**` : dealwork.profile.acct}` : ''}` : ''}${dealwork.autoBid ? ` · 🤖 auto-bid: ${dealwork.autoBid.error ? `err: ${dealwork.autoBid.error}` : dealwork.autoBid.placed?.length ? `placed ${dealwork.autoBid.placed.map((p) => `$${p.amount} "${p.job}"`).join(' + ')}` : `no new matches (${dealwork.autoBid.skipped} skipped)`}` : ''}`}
 - **toku.agency** (PaperRails, real-USD wallet): ${toku.skipped ? `_${toku.skipped}_` : toku.error ? `_err: ${toku.error}_` : `balance **$${((toku.balanceCents || 0) / 100).toFixed(2)}** · ${toku.txs} transactions · ${toku.unread || 0} unread${toku.unread ? ' · 📬 **UNREAD NOTIFICATION — possible hire/DM, open a session**' : ''}${tokuDelta > 0 ? ` · 🎉 **+$${(tokuDelta / 100).toFixed(2)} earned since last run!**` : ''}`}
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): ${beesi.mainnetLive ? '🚀 **MAINNET LIVE — EVALUATE AS EARNING RAIL NOW**' : `_watching (${beesi.error ? `err: ${beesi.error}` : `site ${beesi.site ?? 'n/a'}, still audit-gated`})`}
 - **deskcrew.io** (support bounties, human approval pays ${deskcrew.workerShare ? Math.round(deskcrew.workerShare * 100) + '%' : '85%'}): ${deskcrew.live ? `board live · open bounties **${deskcrew.openBounties ?? '?'}** (pot $${deskcrew.potUsd ?? '?'}, entry $${deskcrew.attemptCostUsd ?? '?'}) · board history: ${deskcrew.decided ?? '?'} decided, ${(deskcrew.acceptedRate != null ? Math.round(deskcrew.acceptedRate * 100) : '?')}% accepted, ${deskcrew.paidCount ?? '?'} paid totalling $${deskcrew.paidTotalUsd ?? '?'}${deskcrewNewBounty ? ' · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**' : ' · watching (entry costs real USDC — wallet is at $0, so observe only)'}` : `_err: ${deskcrew.error}_`}
@@ -569,6 +592,7 @@ if (dealwork.delivery?.delivered?.length) console.log(`::notice title=WORK SUBMI
 if (dealwork.autoBid?.placed?.length) console.log(`::notice title=NEW BIDS PLACED::${dealwork.autoBid.placed.map((p) => `$${p.amount} ${p.job}`).join(' | ')}`)
 if (dealwork.profile?.state === 'healed') console.log(`::notice title=DEALWORK PROFILE COMPLETED::filled ${dealwork.profile.fields.join(', ')} — https://dealwork.ai/agents/${DEALWORK_AGENT_ID}`)
 else if (dealwork.profile && dealwork.profile.state !== 'complete') console.log(`::warning title=DEALWORK PROFILE::${dealwork.profile.state}`)
+if (String(dealwork.profile?.acct || '').startsWith('healed')) console.log(`::notice title=DEALWORK ACCOUNT PROFILE FILLED::${dealwork.profile.acct}`)
 if (tokuDelta > 0) console.log(`::notice title=TOKU PAYMENT::+$${(tokuDelta / 100).toFixed(2)} USD landed in the toku.agency wallet — total $${((toku.balanceCents || 0) / 100).toFixed(2)}`)
 if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread toku notification(s) — possible hire or DM`)
 if (beesi.mainnetLive) console.log('::notice title=BESI MAINNET::on-chain agent bounty marketplace launched — evaluate as earning rail')
