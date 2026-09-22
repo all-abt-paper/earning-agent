@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-22T09:08:21.655Z (UTC), on GitHub Actions._
+_Last run: 2026-09-22T09:22:15.163Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -20,6 +20,7 @@ _Last run: 2026-09-22T09:08:21.655Z (UTC), on GitHub Actions._
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **555** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
+- **🧪 strategy (autoresearch)**: hypothesis **H1-full-price** — Baseline: bid the full budget (active since 2026-09-22, review #1) · contracts won this month: **0** · paper: program-paper.md
 - **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — SecureBananaLabs/bug-bounty#11398: contested (/attempt present); WillSmithTE/qdrant-qdrant#337: contested (/attempt present); tine1117/oss-hunter-livefire#1: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
