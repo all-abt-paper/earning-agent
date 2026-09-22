@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-22T08:22:14.160Z (UTC), on GitHub Actions._
+_Last run: 2026-09-22T08:31:06.188Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -13,12 +13,12 @@ _Last run: 2026-09-22T08:22:14.160Z (UTC), on GitHub Actions._
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
-- **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
+- **toku.agency** (PaperRails, real-USD wallet): _err: The operation was aborted due to timeout_
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · watching (entry costs real USDC — wallet is at $0, so observe only)
 - **x402 market size (Agent402 on-chain leaderboard)**: **1838** sellers scanned (7d window) · top: Bitrefill — $5071.247001 / 143 calls / 40 buyers · AX1 Console — $2143.86 / 107193 calls / 729 buyers · keyring-agent.blockchhub.link — $297.651 / 5954 calls / 57 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **555** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $? WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $? WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **555** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - _no PRs found yet_
