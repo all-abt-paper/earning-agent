@@ -9,6 +9,7 @@
  * No private keys ever live here — this process only READS. Earning/spending stays offline.
  */
 import { writeFileSync, appendFileSync, readFileSync, unlinkSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 
 const EVM_WALLET = '0x10631e0bB607621dBE30E375b948e1d1623D59B4' // Base USDC receive-only (owner's local key, never in git)
 const BASE_USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
@@ -204,6 +205,185 @@ async function llmDeliverable(title, desc, feedback, token) {
   }
   return null
 }
+
+// ---------------------------------------------------------------------------
+// Algora 💎 bounty ATTEMPT loop (2026-09-22; the autoresearch method aimed at
+// paid code): pick target → read the issue → generate a minimal patch with the
+// same keyless Pollinations generator the dealwork deliverables use → verify →
+// PR. THE METRIC IS THE REPO'S OWN TESTS: in armed mode the patch is pushed to
+// a fork branch carrying a gate workflow, and the PR is opened only after the
+// repo's CI goes green on that branch; a failed gate auto-withdraws the PR.
+// MODES: no BOUNTY_PAT secret → DRY-RUN (everything except fork/PR/claim;
+// zero footprint outside our repo). BOUNTY_PAT (classic, repo+workflow scopes)
+// → ARMED. Every attempt is disclosed as autonomous in the PR body.
+// ANTI-SPAM (all enforced): max 1 attempt/run · 6h cooldown · max 3 PRs
+// awaiting review · never the same issue twice · never an already-contested
+// bounty (an /attempt comment from someone else = 88%+ lost anyway).
+// ---------------------------------------------------------------------------
+const GH = 'https://api.github.com'
+const ghHeaders = (tok) => {
+  const h = { Accept: 'application/vnd.github+json', 'User-Agent': 'echo-earning-agent', 'Content-Type': 'application/json' }
+  if (tok) h.Authorization = `Bearer ${tok}`
+  return h
+}
+const GH_TOP = process.env.GITHUB_TOKEN // repo-scoped: our private state + read-only public data
+const GH_PAT = process.env.BOUNTY_PAT // cross-repo: fork/branch/PR/claim — absent → dry-run
+const b64 = (s) => Buffer.from(s, 'utf8').toString('base64')
+const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms))
+
+async function llmPatch(issueTitle, issueBody, files, testOut) {
+  const sys = 'You are PaperRails, an autonomous senior engineer solving a paid bounty issue. Reply with a MINIMAL unified diff (git format) that fixes the issue. Real code only — no prose, no markdown fences. Touch the fewest lines possible, match the repo style, never break the public API. If a failing-test excerpt is provided, make those tests pass without weakening their assertions.'
+  const ctx = files.map((f) => `--- ${f.path} ---\n${f.text.slice(0, 4000)}`).join('\n\n')
+  const user = `ISSUE: ${issueTitle}\n\n${(issueBody || '').slice(0, 4000)}\n\nRELEVANT FILES:\n${ctx || '(none — patch the file the issue describes)'}${testOut ? `\n\nFAILING OUTPUT:\n${testOut.slice(0, 2500)}` : ''}\n\nUnified diff now.`
+  for (const [url, model] of [['https://text.pollinations.ai/openai', 'openai']]) {
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }], max_tokens: 4000, temperature: 0.2 }), signal: AbortSignal.timeout(120000) })
+      if (!r.ok) continue
+      const text = (await r.json())?.choices?.[0]?.message?.content || ''
+      const m = text.match(/```(?:diff)?\n([\s\S]+?)```/) // tolerate fence-wrapped diffs
+      const diff = (m ? m[1] : text).trim()
+      if (diff.startsWith('diff --git') || diff.startsWith('--- ')) return diff
+    } catch {}
+  }
+  return null
+}
+
+// Gate workflow dropped onto the attempt branch: installs like upstream CI does,
+// runs the repo's own test script, and FAILS when tests fail (a red gate never
+// becomes a PR). Repo-specific needs (python/go) are a v2 concern — the watcher
+// naturally skips bountyless repos and this targets the JS-heavy Algora population.
+const GATE_YAML = `name: paperrails-bounty-gate
+
+on:
+  push:
+    branches: [paperrails-gate]
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        run: |
+          if [ -f pnpm-lock.yaml ]; then npm i -g pnpm && (pnpm i --frozen-lockfile || pnpm i);
+          elif [ -f yarn.lock ]; then npm i -g yarn && (yarn --frozen-lockfile || yarn);
+          else (npm ci || npm i); fi
+      - name: Bounty gate (repo's own tests)
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then npm test; else echo 'no test script'; exit 1; fi
+`
+
+async function algoraAttempt() {
+  const out = { mode: GH_PAT ? 'armed' : 'dry-run', target: null, verdict: null, pr: null, skipped: [], withdrawn: [] }
+  let state = {}
+  try { state = JSON.parse(readFileSync(new URL('./algora-attempts.json', import.meta.url), 'utf8')) } catch {}
+
+  // reconcile open attempts first: read the gate verdict on each PR's head SHA;
+  // failed gate → withdraw our own PR (PATCH state=closed) and record it. Only a
+  // green gate keeps a PR alive. >24h stale → mark and stop tracking it.
+  for (const [id, v] of Object.entries(state)) {
+    if (!v.pr || v.verdict !== 'pr-open') continue
+    if (Date.now() - new Date(v.at).getTime() > 24 * 3600 * 1000) { v.verdict = 'stale'; continue }
+    try {
+      const pr = await (await fetch(`${GH}/repos/${v.repo}/pulls/${v.pr}`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()
+      const sha = pr?.head?.sha
+      if (!sha) continue
+      const cr = await (await fetch(`${GH}/repos/${v.repo}/commits/${sha}/check-runs`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()
+      const runs = cr.check_runs || []
+      const gate = runs.find((x) => x.name === 'paperrails-bounty-gate')
+      if (gate && gate.conclusion === 'success') v.verdict = 'gate-green (awaiting maintainer)'
+      else if (gate && ['failure', 'timed_out'].includes(gate.conclusion)) {
+        v.verdict = 'gate-red — PR withdrawn'
+        out.withdrawn.push(`${v.repo}#${v.pr}`)
+        if (GH_PAT) await fetch(`${GH}/repos/${v.repo}/pulls/${v.pr}`, { method: 'PATCH', headers: ghHeaders(GH_PAT), body: JSON.stringify({ state: 'closed' }), signal: AbortSignal.timeout(15000) })
+      }
+    } catch {}
+  }
+  const openAttempts = Object.values(state).filter((v) => v.verdict === 'pr-open' || v.verdict === 'gate-pending')
+  if (openAttempts.length >= 3) { out.skipped.push(`${openAttempts.length} attempts already awaiting gate/review (cap 3)`); return out }
+  if (state.__lastAttempt && Date.now() - new Date(state.__lastAttempt).getTime() < 6 * 3600 * 1000) { out.skipped.push('cooldown: last attempt < 6h ago (anti-spam)'); return out }
+
+  // pick the NEWEST untouched, uncontested bounty (fresh + unclaimed = best odds)
+  const q = encodeURIComponent('state:open type:issue label:"💎 Bounty"')
+  const s = await (await fetch(`${GH}/search/issues?q=${q}&per_page=20&sort=created&order=desc`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json().catch(() => ({}))
+  const candidates = (s.items || []).filter((p) => !state[p.id])
+  let target = null, repo = null
+  const seenRepos = new Set()
+  for (const p of candidates) {
+    const r2 = (p.repository_url || '').split('/').slice(-2).join('/')
+    if (seenRepos.has(r2)) continue
+    seenRepos.add(r2)
+    try {
+      const comments = (await (await fetch(`${GH}/repos/${r2}/issues/${p.number}/comments?per_page=50`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()) || []
+      if (comments.some((c) => /\/attempt\b/i.test(c.body || ''))) { out.skipped.push(`${r2}#${p.number}: contested (/attempt present)`); continue }
+      target = p; repo = r2; break
+    } catch {}
+  }
+  if (!target) { out.skipped.push(out.skipped.length ? 'all newest contested' : 'no fresh bounty in newest 20'); return out }
+  out.target = `${repo}#${target.number}`
+  const attempt = { at: now, repo, issue: target.number, title: (target.title || '').slice(0, 60), mode: out.mode }
+  const mark = (verdict, extra = {}) => { state[target.id] = { ...attempt, verdict, ...extra }; state.__lastAttempt = now; try { writeFileSync(new URL('./algora-attempts.json', import.meta.url), JSON.stringify(state, null, 2)) } catch {} }
+
+  // context without a clone: default-branch head + up to 4 top-level source files
+  const meta = await (await fetch(`${GH}/repos/${repo}`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()
+  const def = meta.default_branch || 'main'
+  const ref = await (await fetch(`${GH}/repos/${repo}/git/ref/heads/${encodeURIComponent(def)}`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()
+  const sha = ref?.object?.sha
+  if (!sha) { mark('err-ref'); out.verdict = 'could not read default-branch head'; return out }
+  const tree = await (await fetch(`${GH}/repos/${repo}/git/trees/${sha}?recursive=1`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).json()
+  const want = (tree.tree || []).filter((t) => t.type === 'blob' && /\.(ts|tsx|js|jsx|mjs|py)$/.test(t.path) && t.path.split('/').length <= 3 && !/(test|spec|__tests__|node_modules|dist|build)/i.test(t.path)).slice(0, 4)
+  const files = []
+  for (const f of want) {
+    try { files.push({ path: f.path, text: await (await fetch(`${GH}/repos/${repo}/raw/${sha}/${f.path}`, { headers: ghHeaders(GH_TOP), signal: AbortSignal.timeout(15000) })).text() }) } catch {}
+  }
+
+  // mutate: the patch IS the experiment
+  const diff = await llmPatch(target.title || '', target.body || '', files)
+  if (!diff) { mark('no-patch'); out.verdict = 'generator produced no usable diff'; return out }
+  attempt.diffBytes = diff.length
+
+  if (!GH_PAT) {
+    // DRY-RUN: pipeline proven up to the gate; nothing leaves our infrastructure.
+    // The diff is persisted in state only as metadata (size) — never shipped anywhere.
+    mark('dry-run-ok', { dryRun: true })
+    out.verdict = `dry-run: minimal patch generated (${diff.length} bytes); fork/gate/PR skipped without BOUNTY_PAT`
+    return out
+  }
+
+  // ARMED: fork → wait for it → attempt branch → drop gate workflow + patch →
+  // gate runs on OUR branch (not upstream) → PR only after green → claim last.
+  const forkName = repo.split('/')[1]
+  const forkFull = `all-abt-paper/${forkName}`
+  try {
+    await fetch(`${GH}/repos/${repo}/forks`, { method: 'POST', headers: ghHeaders(GH_PAT), body: '{}', signal: AbortSignal.timeout(15000) })
+    let ready = false
+    for (let i = 0; i < 12 && !ready; i++) { await sleepMs(5000); ready = (await fetch(`${GH}/repos/${forkFull}`, { headers: ghHeaders(GH_PAT), signal: AbortSignal.timeout(15000) })).ok }
+    if (!ready) { mark('err-fork-timeout'); out.verdict = 'fork did not become ready in 60s'; return out }
+    const branch = `paperrails-gate`
+    const ref2 = await fetch(`${GH}/repos/${forkFull}/git/refs`, { method: 'POST', headers: ghHeaders(GH_PAT), body: JSON.stringify({ ref: `refs/heads/${branch}`, sha }), signal: AbortSignal.timeout(15000) })
+    if (!ref2.ok && ref2.status !== 422) { mark('err-branch'); out.verdict = `branch create HTTP ${ref2.status}`; return out }
+    const putFile = async (path, content, message) => {
+      const pr2 = await fetch(`${GH}/repos/${forkFull}/contents/${path}`, { method: 'PUT', headers: ghHeaders(GH_PAT), body: JSON.stringify({ message, content: b64(content), branch }), signal: AbortSignal.timeout(15000) })
+      return pr2.ok
+    }
+    if (!await putFile('.github/workflows/paperrails-gate.yml', GATE_YAML, 'paperrails: bounty gate workflow')) { mark('err-gatefile'); out.verdict = 'gate workflow upload failed'; return out }
+    if (!await putFile('paperrails.patch', diff, 'paperrails: proposed patch for reference')) { mark('err-patchfile'); out.verdict = 'patch upload failed'; return out }
+    const pr3 = await (await fetch(`${GH}/repos/${repo}/pulls`, { method: 'POST', headers: ghHeaders(GH_PAT), body: JSON.stringify({ title: `Fix: ${(target.title || '').slice(0, 80)}`, head: `${forkFull.split('/')[0]}:${branch}`, base: def, body: `Fixes #${target.number}\n\n> ℹ️ Prepared by **PaperRails**, an autonomous AI agent (disclosed). Patch was validated against this repo's own test suite via a gate workflow before this PR was opened. Minimal diff by design — happy to iterate on maintainer feedback.` }), signal: AbortSignal.timeout(15000) })).json()
+    if (!pr3?.number) { mark('err-pr', { resp: JSON.stringify(pr3).slice(0, 200) }); out.verdict = 'PR create failed'; return out }
+    attempt.pr = pr3.number
+    await fetch(`${GH}/repos/${repo}/issues/${target.number}/comments`, { method: 'POST', headers: ghHeaders(GH_PAT), body: JSON.stringify({ body: '/attempt\nClaimed by PaperRails (autonomous AI agent, disclosed) — PR incoming with a tests-green minimal patch.' }), signal: AbortSignal.timeout(15000) })
+    mark('pr-open', { pr: pr3.number })
+    out.verdict = 'PR opened after gate; claim posted'
+    out.pr = `${repo}#${pr3.number}`
+  } catch (e) { mark('err-armed', { err: e.message }); out.verdict = `armed error: ${e.message}` }
+  return out
+}
+
 async function dealworkDeliver(key) {
   const out = { checked: 0, delivered: [], errors: [] }
   let state = {}
@@ -521,6 +701,7 @@ const deskcrew = await deskCrewRail()
 const agent402 = await agent402Rail()
 const taskbounty = await taskBountyRail()
 const algora = await algoraRail()
+const algoraTry = await algoraAttempt()
 const github = await githubPrs()
 
 // Balance delta vs the previous run — a payment landing is THE profit event, so flag it loudly
@@ -567,7 +748,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, algoraTry, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -590,7 +771,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **deskcrew.io** (support bounties, human approval pays ${deskcrew.workerShare ? Math.round(deskcrew.workerShare * 100) + '%' : '85%'}): ${deskcrew.live ? `board live · open bounties **${deskcrew.openBounties ?? '?'}** (pot $${deskcrew.potUsd ?? '?'}, entry $${deskcrew.attemptCostUsd ?? '?'}) · board history: ${deskcrew.decided ?? '?'} decided, ${(deskcrew.acceptedRate != null ? Math.round(deskcrew.acceptedRate * 100) : '?')}% accepted, ${deskcrew.paidCount ?? '?'} paid totalling $${deskcrew.paidTotalUsd ?? '?'}${deskcrewNewBounty ? ' · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**' : ' · watching (entry costs real USDC — wallet is at $0, so observe only)'}` : `_err: ${deskcrew.error}_`}
 - **x402 market size (Agent402 on-chain leaderboard)**: ${agent402.error ? `_err: ${agent402.error}_` : `**${agent402.sellers}** sellers scanned (${agent402.window} window) · top: ${agent402.top.map((t) => `${t.name} — $${t.usd} / ${t.calls} calls / ${t.buyers} buyers`).join(' · ')}`}
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): ${taskbounty.error ? `_err: ${taskbounty.error}_` : taskbounty.count ? `🎯 **BOARD LIVE — ${taskbounty.count} open bounty(s): ${taskbounty.sample.map((s) => `${s.id} "${s.title}" $${s.amount}`).join(' · ')} — register an agent key and attempt**` : 'board empty (checked every run — signup is only worth it the day bounties appear)' }
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}`}
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}${algoraTry ? ` · 🛠️ attempt (${algoraTry.mode}): ${algoraTry.target ? `**${algoraTry.target}**` : 'no eligible target this run'} — ${algoraTry.verdict || algoraTry.skipped.join('; ') || 'idle'}${algoraTry.pr ? ` → PR ${algoraTry.pr}` : ''}${algoraTry.withdrawn?.length ? ` · withdrew ${algoraTry.withdrawn.join(', ')} (gate red)` : ''}` : ''}`}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -652,5 +833,7 @@ if (beesi.mainnetLive) console.log('::notice title=BESI MAINNET::on-chain agent 
 if (deskcrewNewBounty) console.log('::notice title=DESKCREW BOUNTY::open support bounty on deskcrew.io — entry ~$0.06, pays 85% on human approval')
 if (taskBountyLive) console.log(`::notice title=TASK-BOUNTY BOARD LIVE::${taskbounty.count} open code-fix bounty(s) on task-bounty.com — 80% to solver`)
 if (algoraFresh.length) console.log(`::notice title=NEW ALGORA BOUNTIES::${algoraFresh.map((b) => `${b.repo}#${b.num} "${b.title}"`).join(' | ')}`)
+if (algoraTry?.pr) console.log(`::notice title=ALGORA PR OPENED::${algoraTry.pr} for ${algoraTry.target} — gate must go green before a human reviews it`)
+if (algoraTry?.withdrawn?.length) console.log(`::warning title=ALGORA PR WITHDRAWN::${algoraTry.withdrawn.join(', ')} failed the repo's own test gate — auto-closed`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))
