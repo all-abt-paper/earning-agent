@@ -424,6 +424,30 @@ async function githubPrs() {
   } catch (e) { return { error: e.message } }
 }
 
+// Algora 💎 bounty watch (added 2026-09-22, from the autoresearch loop brainstorm): Algora bounties
+// ARE GitHub issues with a 💎 Bounty label (~555 open, $50–$5k, paid on merge), so the public
+// GitHub search API is the canonical registry — no key, no scraping, no 406s. Watch-only like the
+// other free rails: report the newest five + flag FRESH ones (newer than last run's newest) so the
+// human sees the moment a claimable bounty appears. Attempting = fork + patch + green tests + PR.
+async function algoraRail() {
+  try {
+    const q = encodeURIComponent('state:open type:issue label:"💎 Bounty"')
+    const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'echo-earning-agent' }
+    if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
+    const r = await fetch(`https://api.github.com/search/issues?q=${q}&per_page=5&sort=created&order=desc`, { headers, signal: AbortSignal.timeout(10000) })
+    if (!r.ok) return { error: `HTTP ${r.status}` }
+    const d = await r.json()
+    const items = (d.items || []).map((p) => ({
+      repo: (p.repository_url || '').split('/').slice(-2).join('/'),
+      num: p.number,
+      title: (p.title || '').replace(/\$[\d,]+/g, '').trim().slice(0, 60),
+      amt: (p.title || '').match(/\$[\d,]+/)?.[0] || null,
+      at: p.created_at,
+    }))
+    return { total: d.total_count ?? items.length, items, newestAt: items[0]?.at || null }
+  } catch (e) { return { error: e.message } }
+}
+
 // Solana-side USDC (second payment rail added 2026-07-05; receive-only wallet).
 const SOL_WALLET = '' // no Solana wallet yet — create one and paste it here (author's address removed 2026-09-20)
 async function solUsdc() {
@@ -473,15 +497,16 @@ const beesi = await beesiRail()
 const deskcrew = await deskCrewRail()
 const agent402 = await agent402Rail()
 const taskbounty = await taskBountyRail()
+const algora = await algoraRail()
 const github = await githubPrs()
 
 // Balance delta vs the previous run — a payment landing is THE profit event, so flag it loudly
 // instead of leaving it as a quietly-changed number nobody reads. Also carry forward the previous
 // winners state so we can notify only on the TRANSITION (fire once, not every run forever).
-let prevUsdc = null, prevSol = null, prevSolNative = null, prevActionable = 0, prevMerged = 0, prevTokuCents = null, prevDeskcrew = null, prevTaskBounty = 0
+let prevUsdc = null, prevSol = null, prevSolNative = null, prevActionable = 0, prevMerged = 0, prevTokuCents = null, prevDeskcrew = null, prevTaskBounty = 0, prevAlgoraNewest = null
 try {
   const lines = readFileSync(new URL('./history.jsonl', import.meta.url), 'utf8').trim().split('\n')
-  if (lines.length) { const p = JSON.parse(lines[lines.length - 1]); if (typeof p.baseUsdc === 'number') prevUsdc = p.baseUsdc; if (typeof p.solUsdc === 'number') prevSol = p.solUsdc; if (typeof p.solNative === 'number') prevSolNative = p.solNative; prevActionable = p.dealwork?.actionable || 0; prevMerged = p.github?.merged || 0; if (typeof p.toku?.balanceCents === 'number') prevTokuCents = p.toku.balanceCents; if (typeof p.deskcrew?.openBounties === 'number') prevDeskcrew = p.deskcrew.openBounties; if (typeof p.taskbounty?.count === 'number') prevTaskBounty = p.taskbounty.count }
+  if (lines.length) { const p = JSON.parse(lines[lines.length - 1]); if (typeof p.baseUsdc === 'number') prevUsdc = p.baseUsdc; if (typeof p.solUsdc === 'number') prevSol = p.solUsdc; if (typeof p.solNative === 'number') prevSolNative = p.solNative; prevActionable = p.dealwork?.actionable || 0; prevMerged = p.github?.merged || 0; if (typeof p.toku?.balanceCents === 'number') prevTokuCents = p.toku.balanceCents; if (typeof p.deskcrew?.openBounties === 'number') prevDeskcrew = p.deskcrew.openBounties; if (typeof p.taskbounty?.count === 'number') prevTaskBounty = p.taskbounty.count; if (typeof p.algora?.newestAt === 'string') prevAlgoraNewest = p.algora.newestAt }
 } catch {}
 const delta = (typeof usdc === 'number' && typeof prevUsdc === 'number') ? usdc - prevUsdc : 0
 // ugig's PREFERRED payout is usdc_sol, so a real payment most likely lands on Solana — diff it too or
@@ -501,6 +526,10 @@ const deskcrewNewBounty = typeof prevDeskcrew === 'number' && (deskcrew.openBoun
 // task-bounty board is normally empty; it waking up means real code-fix bounties are claimable.
 // Empty→non-empty transition only — the one moment a signup is worth the human's time.
 const taskBountyLive = typeof prevTaskBounty === 'number' && prevTaskBounty === 0 && (taskbounty.count || 0) > 0
+// Algora bounties are ALWAYS open (~555), so unlike the other rails the signal is freshness, not a
+// count transition: an issue newer than last run's newest = a brand-new claimable bounty. Status-only
+// signal (no NOTIFY email — that would fire daily and burn the one-email channel on non-money events).
+const algoraFresh = (algora.items || []).filter((b) => !prevAlgoraNewest || b.at > prevAlgoraNewest)
 
 // Notify the human ONLY on the transition into a real event (money just
 // landed) — the workflow turns this sentinel into a failed run, which GitHub emails the repo owner.
@@ -515,7 +544,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -538,6 +567,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **deskcrew.io** (support bounties, human approval pays ${deskcrew.workerShare ? Math.round(deskcrew.workerShare * 100) + '%' : '85%'}): ${deskcrew.live ? `board live · open bounties **${deskcrew.openBounties ?? '?'}** (pot $${deskcrew.potUsd ?? '?'}, entry $${deskcrew.attemptCostUsd ?? '?'}) · board history: ${deskcrew.decided ?? '?'} decided, ${(deskcrew.acceptedRate != null ? Math.round(deskcrew.acceptedRate * 100) : '?')}% accepted, ${deskcrew.paidCount ?? '?'} paid totalling $${deskcrew.paidTotalUsd ?? '?'}${deskcrewNewBounty ? ' · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**' : ' · watching (entry costs real USDC — wallet is at $0, so observe only)'}` : `_err: ${deskcrew.error}_`}
 - **x402 market size (Agent402 on-chain leaderboard)**: ${agent402.error ? `_err: ${agent402.error}_` : `**${agent402.sellers}** sellers scanned (${agent402.window} window) · top: ${agent402.top.map((t) => `${t.name} — $${t.usd} / ${t.calls} calls / ${t.buyers} buyers`).join(' · ')}`}
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): ${taskbounty.error ? `_err: ${taskbounty.error}_` : taskbounty.count ? `🎯 **BOARD LIVE — ${taskbounty.count} open bounty(s): ${taskbounty.sample.map((s) => `${s.id} "${s.title}" $${s.amount}`).join(' · ')} — register an agent key and attempt**` : 'board empty (checked every run — signup is only worth it the day bounties appear)' }
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}`}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - ${github.error ? `_err: ${github.error}_` : github.prs?.length ? `${github.merged}/${github.total} merged · ${github.prs.map((p) => `${p.merged ? '✅' : p.state === 'closed' ? '❌' : '⏳'} ${p.repo}#${p.num}`).join(', ')}${newMerge ? ' · 💵 **A PR JUST MERGED — SEND THE INVOICE ON ugig NOW**' : ''}` : '_no PRs found yet_'}
@@ -598,5 +628,6 @@ if (toku.unread) console.log(`::notice title=TOKU UNREAD::${toku.unread} unread 
 if (beesi.mainnetLive) console.log('::notice title=BESI MAINNET::on-chain agent bounty marketplace launched — evaluate as earning rail')
 if (deskcrewNewBounty) console.log('::notice title=DESKCREW BOUNTY::open support bounty on deskcrew.io — entry ~$0.06, pays 85% on human approval')
 if (taskBountyLive) console.log(`::notice title=TASK-BOUNTY BOARD LIVE::${taskbounty.count} open code-fix bounty(s) on task-bounty.com — 80% to solver`)
+if (algoraFresh.length) console.log(`::notice title=NEW ALGORA BOUNTIES::${algoraFresh.map((b) => `${b.repo}#${b.num} "${b.title}"`).join(' | ')}`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))
