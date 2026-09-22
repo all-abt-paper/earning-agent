@@ -146,7 +146,7 @@ function proposalFor(title, desc) {
   if (/python|script|automat|bug|fix|test/.test(t)) return `Autonomous coding agent (AI-disclosed). I deliver the script/fix with a regression test where applicable, as files or a PR, within hours. Samples: ${BID_SAMPLES}`
   return `Autonomous coding & research agent (AI-disclosed). I deliver exactly what the brief describes, as files or a PR, with a short summary of choices made. Samples: ${BID_SAMPLES}`
 }
-async function dealworkAutoBid(key) {
+async function dealworkAutoBid(key, strat) {
   const out = { attempted: 0, placed: [], skipped: 0 }
   try {
     const mine = await (await fetch('https://dealwork.ai/api/v1/bids/mine?per_page=50', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(10000) })).json()
@@ -155,19 +155,22 @@ async function dealworkAutoBid(key) {
     if (!r.ok) return { error: `HTTP ${r.status}`, ...out }
     const jobs = ((await r.json()).data) || []
     const candidates = jobs.filter((j) =>
-      typeof j.budgetMax === 'number' && j.budgetMax >= 5 && j.budgetMax <= 60 &&
+      typeof j.budgetMax === 'number' && j.budgetMax >= (strat.minBudget ?? 5) && j.budgetMax <= 60 &&
       !bidJobs.has(j.id) &&
       (j.description || '').length >= 80 && // real briefs describe the work; ads and tests don't
       !/\bI\b|\bsoy\b/i.test((j.description || '').slice(0, 300)) && // service-ads self-describe in first person
       !/omniblocks|bountyfarmer|hello world|the universe/i.test(j.title + ' ' + (j.description || '')))
-    for (const j of candidates.slice(0, 2)) {
+    for (const j of candidates.slice(0, strat.bidsPerRun ?? 2)) {
       out.attempted++
-      const body = { proposedAmount: j.budgetMax.toFixed(2), estimatedHours: 1.5, proposalText: proposalFor(j.title, j.description) }
+      // strategy knob: pricing mode. 'full' = bid the buyer's max (baseline, most
+      // competitive); 'undercut' = 10% below max — the classic price-war hypothesis.
+      const amount = strat.priceMode === 'undercut' ? Math.max(strat.minBudget ?? 5, j.budgetMax * 0.9).toFixed(2) : j.budgetMax.toFixed(2)
+      const body = { proposedAmount: amount, estimatedHours: 1.5, proposalText: proposalFor(j.title, j.description) }
       const br = await fetch(`https://dealwork.ai/api/v1/jobs/${j.id}/bids`, {
         method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
       })
-      if (br.ok) out.placed.push({ job: (j.title || '').slice(0, 60), amount: j.budgetMax })
+      if (br.ok) out.placed.push({ job: (j.title || '').slice(0, 60), amount: Number(amount) })
       else out.skipped++
       // platform etiquette: no tight-loop retries — a 4xx will not change by retrying
     }
@@ -681,6 +684,62 @@ async function algoraRail() {
   } catch (e) { return { error: e.message } }
 }
 
+// ---------------------------------------------------------------------------
+// AUTORESEARCH STRATEGY LEDGER (2026-09-22): karpathy/autoresearch's method —
+// mutate one variable, run within a fixed budget, measure one metric, keep or
+// discard — pointed at PaperRails itself. Each run is an "experiment" tagged
+// with the ACTIVE HYPOTHESIS (recorded in history.jsonl + status.md). The
+// metric is contracts won (escrow-locked) — the thing that actually pays.
+// program-paper.md holds the research program: its STRATEGY-BLOCK front-matter
+// drives REAL knobs (dealworkAutoBid pricing/bid-count/budget-floor), and on
+// the first run of each UTC month the agent reviews the ledger, writes the
+// findings section, and rotates to the next hypothesis. The agent only ever
+// mutates strategy — never auth, wallets, or the human-only security allowlist.
+// ---------------------------------------------------------------------------
+const HYPOTHESES = [
+  { id: 'H1-full-price', name: 'Baseline: bid the full budget', knobs: { priceMode: 'full' } },
+  { id: 'H2-undercut-10', name: 'Undercut: bid 10% below budget', knobs: { priceMode: 'undercut' } },
+  { id: 'H3-high-volume', name: 'Volume: 3 bids/run, $5 floor', knobs: { priceMode: 'full', bidsPerRun: 3, minBudget: 5 } },
+]
+const STRAT_FILE = new URL('./program-paper.md', import.meta.url)
+function loadStrategy() {
+  let active = null
+  try {
+    const txt = readFileSync(STRAT_FILE, 'utf8')
+    const m = txt.match(/<!--STRATEGY-BLOCK([\s\S]*?)-->/)
+    if (m) active = JSON.parse(m[1].trim())
+  } catch {}
+  if (!active || !HYPOTHESES.some((h) => h.id === active.hypothesis)) active = { hypothesis: HYPOTHESES[0].id, since: now, reviewCount: 1 } // bootstrap counts as setup: first real review is next month, so H1 gets a full month
+  const h = HYPOTHESES.find((x) => x.id === active.hypothesis) || HYPOTHESES[0]
+  return { ...active, ...h, knobs: { ...h.knobs } }
+}
+function winsThisMonth(hist) {
+  const month = now.slice(0, 7)
+  return hist.filter((x) => typeof x.ts === 'string' && x.ts.slice(0, 7) === month && (x.dealwork?.actionable || 0) > 0 && (x.dealwork?.contracts?.length || 0) > 0).length
+}
+function maybeMonthlyReview(strat, hist, wins) {
+  const month = now.slice(0, 7)
+  if (strat.since && strat.since.slice(0, 7) === month && strat.reviewCount > 0) return null // already reviewed this month
+  const runs = hist.length
+  const months = [...new Set(hist.map((x) => typeof x.ts === 'string' && x.ts.slice(0, 7)).filter(Boolean))].sort()
+  const bids = hist.reduce((s, x) => s + (x.dealwork?.autoBid?.placed?.length || 0), 0)
+  const findings = [
+    `### ${month} review (generated by the agent from history.jsonl)`,
+    `- Ledger: ${runs} runs recorded since ${months[0] || month}-01 · ${bids} bids placed total · ${wins} contract(s) won this month`,
+    `- Hypothesis under test: **${strat.hypothesis}** — ${strat.name} (active since ${(strat.since || now).slice(0, 10)})`,
+    `- Interpretation: ${wins > 0 ? 'the metric moved — this is the signal to study' : 'no contracts won yet; the metric stays flat and bids keep going out — treating volume as the working variable until the first escrow lands'}`,
+    `- Next: rotate to ${HYPOTHESES[(HYPOTHESES.findIndex((h) => h.id === strat.hypothesis) + 1) % HYPOTHESES.length].id} per the rotation below`,
+  ].join('\n')
+  const nextId = HYPOTHESES[(HYPOTHESES.findIndex((h) => h.id === strat.hypothesis) + 1) % HYPOTHESES.length].id
+  const body = readFileSync(STRAT_FILE, 'utf8')
+  const withFindings = body.includes('<!--FINDINGS-->') ? body.replace('<!--FINDINGS-->', `<!--FINDINGS-->\n${findings}\n`) : body
+  // rotate for real: rewrite the STRATEGY-BLOCK so the NEXT run actually runs
+  // the next hypothesis (a review that doesn't mutate the program is just a diary)
+  const block = `<!--STRATEGY-BLOCK\n${JSON.stringify({ hypothesis: nextId, since: now, reviewCount: (strat.reviewCount || 0) + 1 })}\n-->`
+  writeFileSync(STRAT_FILE, withFindings.replace(/<!--STRATEGY-BLOCK[\s\S]*?-->/, block))
+  return { rotatedTo: nextId, findings }
+}
+
 // Solana-side USDC (second payment rail added 2026-07-05; receive-only wallet).
 const SOL_WALLET = '' // no Solana wallet yet — create one and paste it here (author's address removed 2026-09-20)
 async function solUsdc() {
@@ -713,6 +772,7 @@ async function solNative() {
   } catch (e) { return `err:${e.message}` }
 }
 
+const strategy = loadStrategy()
 const usdc = await baseUsdc()
 const solUsdcBal = await solUsdc()
 const solNativeBal = await solNative()
@@ -722,7 +782,7 @@ const paidRoute = await paidRouteHealth()
 const intelPipeline = await intelPipelineHealth()
 const openTask = await openTaskRail()
 const dealwork = await dealworkRail()
-if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY)
+if (process.env.DEALWORK_API_KEY && dealwork.heartbeat === 'ok') dealwork.autoBid = await dealworkAutoBid(process.env.DEALWORK_API_KEY, strategy.knobs)
 if (process.env.DEALWORK_API_KEY) dealwork.delivery = await dealworkDeliver(process.env.DEALWORK_API_KEY)
 if (process.env.DEALWORK_API_KEY) dealwork.profile = await dealworkProfile(process.env.DEALWORK_API_KEY)
 const toku = await tokuRail()
@@ -761,6 +821,13 @@ const deskcrewNewBounty = typeof prevDeskcrew === 'number' && (deskcrew.openBoun
 // task-bounty board is normally empty; it waking up means real code-fix bounties are claimable.
 // Empty→non-empty transition only — the one moment a signup is worth the human's time.
 const taskBountyLive = typeof prevTaskBounty === 'number' && prevTaskBounty === 0 && (taskbounty.count || 0) > 0
+
+// ledger history + the monthly review/rotation (after the money-transition
+// consts so `newContract` is initialized — the review reads it via `hist` wins)
+let hist = []
+try { hist = readFileSync(new URL('./history.jsonl', import.meta.url), 'utf8').trim().split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l) } catch { return null } }).filter(Boolean) } catch {}
+const stratWins = winsThisMonth(hist) + (newContract ? 1 : 0)
+const rotation = maybeMonthlyReview(strategy, hist, stratWins)
 // Algora bounties are ALWAYS open (~555), so unlike the other rails the signal is freshness, not a
 // count transition: an issue newer than last run's newest = a brand-new claimable bounty. Status-only
 // signal (no NOTIFY email — that would fire daily and burn the one-email channel on non-money events).
@@ -779,7 +846,7 @@ const fresh = openSlugs.filter((s) => !seen.includes(s))
 const freshDetail = (superteam.open || []).filter((o) => fresh.includes(o.slug))
 writeFileSync(new URL('./seen-listings.json', import.meta.url), JSON.stringify([...new Set([...seen, ...openSlugs])], null, 0))
 
-const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, algoraTry, security, github, superteam, newListings: fresh }
+const snapshot = { ts: now, baseUsdc: usdc, solUsdc: solUsdcBal, solNative: solNativeBal, delta, solDelta, solNativeDelta, service, paidRoute, intelPipeline, openTask, dealwork, toku, beesi, deskcrew, agent402, taskbounty, algora, algoraTry, security, strategy: { hypothesis: strategy.hypothesis, name: strategy.name, since: strategy.since, reviewCount: strategy.reviewCount, winsThisMonth: stratWins }, github, superteam, newListings: fresh }
 appendFileSync(new URL('./history.jsonl', import.meta.url), JSON.stringify(snapshot) + '\n')
 
 const md = `# Earning agent status
@@ -804,6 +871,7 @@ _Last run: ${now} (UTC), on GitHub Actions._
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): ${taskbounty.error ? `_err: ${taskbounty.error}_` : taskbounty.count ? `🎯 **BOARD LIVE — ${taskbounty.count} open bounty(s): ${taskbounty.sample.map((s) => `${s.id} "${s.title}" $${s.amount}`).join(' · ')} — register an agent key and attempt**` : 'board empty (checked every run — signup is only worth it the day bounties appear)' }
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): ${algora.error ? `_err: ${algora.error}_` : `**${algora.total}** open · newest: ${algora.items.map((b) => `${b.amt || '$?'} ${b.repo}#${b.num} "${b.title}"`).join(' · ')}${algoraFresh.length ? ` · 🆕 **${algoraFresh.length} NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)` : ''}`}
 - **🛡️ security research** (policy-gated per ${security.policy}): gate **${security.gate}**${security.programs.length ? ` · authorized: ${security.programs.map((p) => `${p.program} (${p.asset})`).join(', ')}` : ' · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open)'} · audit log: ${security.auditLines} entries${security.problems.length ? ` · ⚠️ ${security.problems.join('; ')}` : ''}
+- **🧪 strategy (autoresearch)**: hypothesis **${strategy.hypothesis}** — ${strategy.name} (active since ${(strategy.since || now).slice(0, 10)}, review #${strategy.reviewCount || 0}) · contracts won this month: **${stratWins}** · paper: program-paper.md${rotation ? ` · 🔄 **MONTHLY REVIEW WRITTEN — rotated to ${rotation.rotatedTo}**` : ''}
 - **autoresearch bounty loop**: ${algoraTry ? `🛠️ attempt (${algoraTry.mode}): ${algoraTry.target ? `**${algoraTry.target}**` : 'no eligible target this run'} — ${algoraTry.verdict || algoraTry.skipped.join('; ') || 'idle'}${algoraTry.pr ? ` → PR ${algoraTry.pr}` : ''}${algoraTry.withdrawn?.length ? ` · withdrew ${algoraTry.withdrawn.join(', ')} (gate red)` : ''}` : 'idle'}
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
@@ -869,5 +937,6 @@ if (algoraFresh.length) console.log(`::notice title=NEW ALGORA BOUNTIES::${algor
 if (algoraTry?.pr) console.log(`::notice title=ALGORA PR OPENED::${algoraTry.pr} for ${algoraTry.target} — gate must go green before a human reviews it`)
 if (algoraTry?.withdrawn?.length) console.log(`::warning title=ALGORA PR WITHDRAWN::${algoraTry.withdrawn.join(', ')} failed the repo's own test gate — auto-closed`)
 if (security.problems.length) console.log(`::warning title=SECURITY ALLOWLIST PROBLEM::${security.problems.join('; ')} — gate stays CLOSED`)
+if (rotation) console.log(`::notice title=STRATEGY ROTATED::${strategy.hypothesis} → ${rotation.rotatedTo} — monthly autoresearch review appended to program-paper.md`)
 if (String(paidRoute).startsWith('BROKEN')) console.log(`::warning title=SALES PATH DOWN::${paidRoute}`)
 if (freshDetail.length) console.log('::notice title=NEW LISTINGS::' + freshDetail.map((o) => `${o.slug} (${o.access}, ${o.reward} ${o.token})`).join(' | '))
