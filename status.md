@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-23T21:27:18.062Z (UTC), on GitHub Actions._
+_Last run: 2026-09-23T23:56:19.260Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -15,8 +15,8 @@ _Last run: 2026-09-23T21:27:18.062Z (UTC), on GitHub Actions._
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
-- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **2** (pot $2, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **1915** sellers scanned (7d window) · top: www.ax1.vc — $2135.76 / 106788 calls / 831 buyers · keyring-agent.blockchhub.link — $338.15 / 6763 calls / 56 buyers · StableEnrich — $283.8984 / 11056 calls / 129 buyers
+- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **4** (pot $4, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**
+- **x402 market size (Agent402 on-chain leaderboard)**: **1951** sellers scanned (7d window) · top: AX1 Console — $2136.18 / 106809 calls / 853 buyers · BlockRun.AI — $405.947111 / 15865 calls / 167 buyers · keyring-agent.blockchhub.link — $348.6 / 6972 calls / 56 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **554** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
