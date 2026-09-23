@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-23T17:50:22.756Z (UTC), on GitHub Actions._
+_Last run: 2026-09-23T21:27:18.062Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -8,7 +8,7 @@ _Last run: 2026-09-23T17:50:22.756Z (UTC), on GitHub Actions._
 - **Solana (native SOL — chovy's bounties pay here)**: **0**
 
 ## 🛰️ Paid service (Solana Token Intelligence, x402)
-- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 95, 2 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
+- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 99, 3 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
@@ -16,7 +16,7 @@ _Last run: 2026-09-23T17:50:22.756Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **2** (pot $2, entry $0.06) · board history: 409 decided, 22% accepted, 79 paid totalling $66.34 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **1959** sellers scanned (7d window) · top: AX1 Console — $2134.66 / 106733 calls / 803 buyers · keyring-agent.blockchhub.link — $325.8 / 6516 calls / 56 buyers · StableEnrich — $291.4002 / 10897 calls / 132 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **1915** sellers scanned (7d window) · top: www.ax1.vc — $2135.76 / 106788 calls / 831 buyers · keyring-agent.blockchhub.link — $338.15 / 6763 calls / 56 buyers · StableEnrich — $283.8984 / 11056 calls / 129 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **554** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
