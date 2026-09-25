@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-25T15:32:24.289Z (UTC), on GitHub Actions._
+_Last run: 2026-09-25T19:32:02.249Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-09-25T15:32:24.289Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2047** sellers scanned (7d window) · top: AX1 Console — $2193.68 / 109684 calls / 1089 buyers · BlockRun.AI — $409.078083 / 14921 calls / 172 buyers · keyring-agent.blockchhub.link — $350.35 / 7007 calls / 53 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2044** sellers scanned (7d window) · top: AX1 Console — $2171.96 / 108598 calls / 1080 buyers · BlockRun.AI — $413.829038 / 15043 calls / 175 buyers · keyring-agent.blockchhub.link — $350.3 / 7006 calls / 53 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **554** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
