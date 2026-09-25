@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-25T00:31:39.335Z (UTC), on GitHub Actions._
+_Last run: 2026-09-25T05:22:23.336Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -12,11 +12,11 @@ _Last run: 2026-09-25T00:31:39.335Z (UTC), on GitHub Actions._
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
-- **dealwork.ai** (PaperRails): heartbeat **ok** · bids: pending $8.0000, pending $10.0000, pending $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
+- **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2006** sellers scanned (7d window) · top: AX1 Console — $2249.18 / 112459 calls / 1108 buyers · BlockRun.AI — $394.846157 / 13660 calls / 168 buyers · library.proofivy.com — $367.894168 / 2066 calls / 8 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2025** sellers scanned (7d window) · top: AX1 Console — $2222.18 / 111109 calls / 1127 buyers · BlockRun.AI — $398.251521 / 13807 calls / 168 buyers · library.proofivy.com — $372.818351 / 2090 calls / 8 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **554** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
