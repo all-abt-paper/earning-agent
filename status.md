@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-09-30T20:17:28.640Z (UTC), on GitHub Actions._
+_Last run: 2026-10-01T00:09:59.240Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,11 +16,11 @@ _Last run: 2026-09-30T20:17:28.640Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2161** sellers scanned (7d window) · top: AX1 Console — $2330.22 / 116511 calls / 2397 buyers · X Pay — $471.091542 / 14675 calls / 51 buyers · BlockRun.AI — $453.753169 / 25800 calls / 199 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2155** sellers scanned (7d window) · top: AX1 Console — $2341.38 / 117069 calls / 2378 buyers · X Pay — $481.106401 / 14676 calls / 43 buyers · keyring-agent.blockchhub.link — $349.8 / 6996 calls / 52 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **553** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
-- **🧪 strategy (autoresearch)**: hypothesis **H1-full-price** — Baseline: bid the full budget (active since 2026-09-22, review #1) · contracts won this month: **0** · paper: program-paper.md
+- **🧪 strategy (autoresearch)**: hypothesis **H1-full-price** — Baseline: bid the full budget (active since 2026-09-22, review #1) · contracts won this month: **0** · paper: program-paper.md · 🔄 **MONTHLY REVIEW WRITTEN — rotated to H2-undercut-10**
 - **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — SecureBananaLabs/bug-bounty#11398: contested (/attempt present); WillSmithTE/qdrant-qdrant#337: contested (/attempt present); tine1117/oss-hunter-livefire#1: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
