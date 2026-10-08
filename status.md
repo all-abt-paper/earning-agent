@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-08T19:25:15.719Z (UTC), on GitHub Actions._
+_Last run: 2026-10-08T23:56:34.232Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-10-08T19:25:15.719Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2452** sellers scanned (7d window) · top: api.surplusintelligence.ai — $2144.393745 / 11146 calls / 5 buyers · AX1 Console — $1903.66 / 95183 calls / 429 buyers · X Pay — $1859.853633 / 20850 calls / 122 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2442** sellers scanned (7d window) · top: api.surplusintelligence.ai — $2239.107234 / 11527 calls / 7 buyers · AX1 Console — $1909.4 / 95470 calls / 429 buyers · X Pay — $1878.908606 / 20662 calls / 125 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **553** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
