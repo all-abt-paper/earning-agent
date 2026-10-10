@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-10T19:30:17.353Z (UTC), on GitHub Actions._
+_Last run: 2026-10-10T22:54:59.053Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-10-10T19:30:17.353Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2554** sellers scanned (7d window) · top: X Pay — $2578.9468 / 16346 calls / 142 buyers · api.surplusintelligence.ai — $2501.270895 / 13318 calls / 7 buyers · AX1 Console — $2100.66 / 105033 calls / 470 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2604** sellers scanned (7d window) · top: X Pay — $2618.937 / 16357 calls / 144 buyers · api.surplusintelligence.ai — $2399.79199 / 13380 calls / 7 buyers · AX1 Console — $2026.34 / 101317 calls / 471 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **553** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
