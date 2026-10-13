@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-12T19:46:59.942Z (UTC), on GitHub Actions._
+_Last run: 2026-10-13T01:59:19.776Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,9 +16,9 @@ _Last run: 2026-10-12T19:46:59.942Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2643** sellers scanned (7d window) · top: X Pay — $2862.45816 / 13150 calls / 153 buyers · api.surplusintelligence.ai — $2482.162784 / 15010 calls / 8 buyers · AX1 Console — $1704.68015 / 85239 calls / 562 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2652** sellers scanned (7d window) · top: X Pay — $2903.75328 / 13418 calls / 155 buyers · api.surplusintelligence.ai — $2486.770466 / 14391 calls / 8 buyers · AX1 Console — $1775.72015 / 88791 calls / 588 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **553** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **550** open · newest: $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
 - **🧪 strategy (autoresearch)**: hypothesis **H2-undercut-10** — Undercut: bid 10% below budget (active since 2026-10-01, review #2) · contracts won this month: **0** · paper: program-paper.md
 - **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — SecureBananaLabs/bug-bounty#11398: contested (/attempt present); WillSmithTE/qdrant-qdrant#337: contested (/attempt present); tine1117/oss-hunter-livefire#1: contested (/attempt present); all newest contested
