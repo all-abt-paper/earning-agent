@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-15T07:21:41.793Z (UTC), on GitHub Actions._
+_Last run: 2026-10-15T12:51:01.141Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -15,8 +15,8 @@ _Last run: 2026-10-15T07:21:41.793Z (UTC), on GitHub Actions._
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
-- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 441 decided, 21% accepted, 82 paid totalling $68.89 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2707** sellers scanned (7d window) · top: X Pay — $2947.087952 / 14074 calls / 164 buyers · AX1 Console — $1528.62015 / 76436 calls / 746 buyers · api.surplusintelligence.ai — $1329.118615 / 12958 calls / 9 buyers
+- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
+- **x402 market size (Agent402 on-chain leaderboard)**: **2748** sellers scanned (7d window) · top: X Pay — $2947.367878 / 14126 calls / 165 buyers · AX1 Console — $1512.00015 / 75605 calls / 746 buyers · api.surplusintelligence.ai — $1199.360652 / 12841 calls / 9 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **550** open · newest: $500 limitlessprojects/Go-Hybrid#5 "Bounty track: hunt accepted-but-unsound programs at the task" · $800 SecureBananaLabs/bug-bounty#11398 "Automate Bug Detection and Reviews" · $250 WillSmithTE/qdrant-qdrant#337 "Handle Out-Of-Disk gracefully" · $200 WillSmithTE/qdrant-qdrant#320 "Implement better handling of OOD issues in optimizer"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
