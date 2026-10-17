@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-17T21:24:53.918Z (UTC), on GitHub Actions._
+_Last run: 2026-10-17T23:23:07.482Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-10-17T21:24:53.918Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2912** sellers scanned (7d window) · top: X Pay — $2950.454956 / 14842 calls / 184 buyers · AX1 Console — $1981.02015 / 99056 calls / 797 buyers · api.surplusintelligence.ai — $605.303383 / 16453 calls / 6 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2925** sellers scanned (7d window) · top: X Pay — $2950.454956 / 14842 calls / 184 buyers · AX1 Console — $1972.36015 / 98623 calls / 795 buyers · api.surplusintelligence.ai — $605.959814 / 16465 calls / 6 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **577** open · newest: $? limitlessprojects/Go-Hybrid#462 "[wildcard] Isolated WASM task cells: replace cross-task alia" · $? limitlessprojects/Go-Hybrid#417 "[wildcard] Serializable shared-state regions instead of excl" · $0 limitlessprojects/Go-Hybrid#378 "[wildcard] Compile fixed-rate task networks away: certified " · $0 limitlessprojects/Go-Hybrid#375 "[wildcard] Kill libhyrt.a and the runtime stack-guard branch" · $250 limitlessprojects/Go-Hybrid#352 "[wildcard] GUARANTEES.md row 12 is wrong: cancellation-safet"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
