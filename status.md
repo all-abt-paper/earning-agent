@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-17T12:55:28.383Z (UTC), on GitHub Actions._
+_Last run: 2026-10-17T16:21:43.293Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,12 +16,12 @@ _Last run: 2026-10-17T12:55:28.383Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2885** sellers scanned (7d window) · top: X Pay — $2950.049973 / 14761 calls / 184 buyers · AX1 Console — $1829.48015 / 91479 calls / 750 buyers · api.surplusintelligence.ai — $560.307068 / 15388 calls / 6 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2895** sellers scanned (7d window) · top: X Pay — $2950.184975 / 14788 calls / 184 buyers · AX1 Console — $1873.82015 / 93696 calls / 751 buyers · api.surplusintelligence.ai — $576.917856 / 15745 calls / 6 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **575** open · newest: $? limitlessprojects/Go-Hybrid#417 "[wildcard] Serializable shared-state regions instead of excl" · $0 limitlessprojects/Go-Hybrid#378 "[wildcard] Compile fixed-rate task networks away: certified " · $250 limitlessprojects/Go-Hybrid#352 "[wildcard] GUARANTEES.md row 12 is wrong: cancellation-safet" · $250 limitlessprojects/Go-Hybrid#348 "[wildcard] Certify cancellation-safe structured task regions" · $250 limitlessprojects/Go-Hybrid#347 "[wildcard] Flip GUARANTEES Row 16 & Deadlock-Freedom from "N" · 🆕 **1 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **576** open · newest: $? limitlessprojects/Go-Hybrid#462 "[wildcard] Isolated WASM task cells: replace cross-task alia" · $? limitlessprojects/Go-Hybrid#417 "[wildcard] Serializable shared-state regions instead of excl" · $0 limitlessprojects/Go-Hybrid#378 "[wildcard] Compile fixed-rate task networks away: certified " · $250 limitlessprojects/Go-Hybrid#352 "[wildcard] GUARANTEES.md row 12 is wrong: cancellation-safet" · $250 limitlessprojects/Go-Hybrid#348 "[wildcard] Certify cancellation-safe structured task regions" · 🆕 **1 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
 - **🧪 strategy (autoresearch)**: hypothesis **H2-undercut-10** — Undercut: bid 10% below budget (active since 2026-10-01, review #2) · contracts won this month: **0** · paper: program-paper.md
-- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#417: contested (/attempt present); oll4com/spaceapp#65: contested (/attempt present); all newest contested
+- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#462: contested (/attempt present); oll4com/spaceapp#65: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - _no PRs found yet_
