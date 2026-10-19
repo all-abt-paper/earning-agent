@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-18T22:35:13.222Z (UTC), on GitHub Actions._
+_Last run: 2026-10-19T00:28:00.281Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -8,7 +8,7 @@ _Last run: 2026-10-18T22:35:13.222Z (UTC), on GitHub Actions._
 - **Solana (native SOL — chovy's bounties pay here)**: **0**
 
 ## 🛰️ Paid service (Solana Token Intelligence, x402)
-- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 99, 3 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
+- https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 95, 2 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
@@ -16,7 +16,7 @@ _Last run: 2026-10-18T22:35:13.222Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **2970** sellers scanned (7d window) · top: X Pay — $2911.220104 / 14998 calls / 185 buyers · AX1 Console — $1962.02015 / 98106 calls / 908 buyers · api.surplusintelligence.ai — $935.474162 / 17145 calls / 7 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **2963** sellers scanned (7d window) · top: X Pay — $2911.064984 / 14960 calls / 182 buyers · AX1 Console — $1829.96015 / 91503 calls / 882 buyers · api.surplusintelligence.ai — $951.313168 / 17139 calls / 7 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **579** open · newest: $? limitlessprojects/Go-Hybrid#695 "[wildcard] Eliminate the Checker/Emitter Semantic Split: Emi" · $? limitlessprojects/Go-Hybrid#634 "[wildcard] Delete sendability analysis: task regions as seri" · $250 limitlessprojects/Go-Hybrid#610 "[wildcard] Make FFI claims proof-carrying: verify boundary c" · $? limitlessprojects/Go-Hybrid#605 "[wildcard]" · $? limitlessprojects/Go-Hybrid#462 "[wildcard] Isolated WASM task cells: replace cross-task alia"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
