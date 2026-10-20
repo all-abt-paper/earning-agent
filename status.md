@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-20T12:07:49.859Z (UTC), on GitHub Actions._
+_Last run: 2026-10-20T16:56:08.423Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-10-20T12:07:49.859Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3027** sellers scanned (7d window) · top: X Pay — $2861.206221 / 15037 calls / 184 buyers · AX1 Console — $1683.88 / 84194 calls / 718 buyers · api.surplusintelligence.ai — $942.795091 / 15814 calls / 9 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3038** sellers scanned (7d window) · top: X Pay — $2861.791233 / 15154 calls / 183 buyers · AX1 Console — $1721.26 / 86063 calls / 735 buyers · api.surplusintelligence.ai — $934.514832 / 15668 calls / 9 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **580** open · newest: $? limitlessprojects/Go-Hybrid#757 "[wildcard] Kill libhyrt.a, cgo, and the 3-tier FFI bridge: A" · $? limitlessprojects/Go-Hybrid#695 "[wildcard] Eliminate the Checker/Emitter Semantic Split: Emi" · $? limitlessprojects/Go-Hybrid#634 "[wildcard] Delete sendability analysis: task regions as seri" · $250 limitlessprojects/Go-Hybrid#610 "[wildcard] Make FFI claims proof-carrying: verify boundary c" · $? limitlessprojects/Go-Hybrid#605 "[wildcard]"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
