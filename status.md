@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-24T22:43:46.419Z (UTC), on GitHub Actions._
+_Last run: 2026-10-25T01:05:11.076Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -13,7 +13,7 @@ _Last run: 2026-10-24T22:43:46.419Z (UTC), on GitHub Actions._
 ## 🔀 Alt rails (widening the net beyond Superteam)
 - **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
-- **toku.agency** (PaperRails, real-USD wallet): _err: The operation was aborted due to timeout_
+- **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
 - **x402 market size (Agent402 on-chain leaderboard)**: **3276** sellers scanned (7d window) · top: X Pay — $2924.200008 / 11580 calls / 202 buyers · AX1 Console — $2353.16 / 117658 calls / 860 buyers · x402.dtelecom.org — $1281.700151 / 1034 calls / 9 buyers
