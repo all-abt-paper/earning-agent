@@ -1,0 +1,11 @@
+{
+  "6050195821": {
+    "at": "2026-10-26T23:49:39.152Z",
+    "repo": "limitlessprojects/Go-Hybrid",
+    "issue": 1962,
+    "title": "Serial by default: safe execution first",
+    "mode": "dry-run",
+    "verdict": "no-patch"
+  },
+  "__lastAttempt": "2026-10-26T23:49:39.152Z"
+}
