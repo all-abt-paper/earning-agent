@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-26T06:57:50.432Z (UTC), on GitHub Actions._
+_Last run: 2026-10-26T14:11:12.347Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-10-26T06:57:50.432Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3325** sellers scanned (7d window) · top: AX1 Console — $2980.46 / 149023 calls / 1380 buyers · X Pay — $2806.532016 / 12131 calls / 210 buyers · x402.dtelecom.org — $1283.400172 / 1038 calls / 9 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3332** sellers scanned (7d window) · top: AX1 Console — $3098.76 / 154938 calls / 1714 buyers · X Pay — $2699.53218 / 12726 calls / 203 buyers · x402.dtelecom.org — $1287.900184 / 1039 calls / 9 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **581** open · newest: $? limitlessprojects/Go-Hybrid#1669 "[wildcard] Structured Task Scopes & Affine Cancellation Toke" · $? limitlessprojects/Go-Hybrid#757 "[wildcard] Kill libhyrt.a, cgo, and the 3-tier FFI bridge: A" · $? limitlessprojects/Go-Hybrid#695 "[wildcard] Eliminate the Checker/Emitter Semantic Split: Emi" · $? limitlessprojects/Go-Hybrid#634 "[wildcard] Delete sendability analysis: task regions as seri" · $250 limitlessprojects/Go-Hybrid#610 "[wildcard] Make FFI claims proof-carrying: verify boundary c"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
