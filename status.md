@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-01T09:09:56.312Z (UTC), on GitHub Actions._
+_Last run: 2026-11-01T15:58:46.856Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-11-01T09:09:56.312Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3462** sellers scanned (7d window) · top: AX1 Console — $6794.18 / 339776 calls / 5759 buyers · X Pay — $1559.253981 / 16854 calls / 133 buyers · x402.dtelecom.org — $1303.500072 / 1030 calls / 5 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3371** sellers scanned (7d window) · top: AX1 Console — $6894.63 / 344805 calls / 5630 buyers · X Pay — $1504.323257 / 17827 calls / 118 buyers · x402.dtelecom.org — $1298.500051 / 1028 calls / 5 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **574** open · newest: $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis" · $? limitlessprojects/Go-Hybrid#1962 "Serial by default: safe execution first" · $? limitlessprojects/Go-Hybrid#1669 "[wildcard] Structured Task Scopes & Affine Cancellation Toke" · $? limitlessprojects/Go-Hybrid#695 "[wildcard] Eliminate the Checker/Emitter Semantic Split: Emi" · $? limitlessprojects/Go-Hybrid#634 "[wildcard] Delete sendability analysis: task regions as seri"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
