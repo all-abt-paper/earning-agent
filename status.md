@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-10-31T22:48:46.153Z (UTC), on GitHub Actions._
+_Last run: 2026-11-01T02:09:00.709Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,12 +16,12 @@ _Last run: 2026-10-31T22:48:46.153Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 449 decided, 21% accepted, 83 paid totalling $69.74 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3490** sellers scanned (7d window) · top: AX1 Console — $6735.77 / 336851 calls / 5611 buyers · X Pay — $1641.209192 / 17264 calls / 141 buyers · API guide - Bounded text chunks — $1370.844367 / 137202 calls / 8 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3459** sellers scanned (7d window) · top: AX1 Console — $6732.63 / 336696 calls / 5685 buyers · X Pay — $1600.649323 / 17154 calls / 135 buyers · Call centre - IQR outlier flags — $1315.604367 / 131678 calls / 8 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **578** open · newest: $1 limitlessprojects/Go-Hybrid#2475 "[wildcard] Kahn determinism: prove that a checked task netwo" · $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis" · $? limitlessprojects/Go-Hybrid#1962 "Serial by default: safe execution first" · $? limitlessprojects/Go-Hybrid#1669 "[wildcard] Structured Task Scopes & Affine Cancellation Toke" · $? limitlessprojects/Go-Hybrid#757 "[wildcard] Kill libhyrt.a, cgo, and the 3-tier FFI bridge: A"
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **579** open · newest: $? limitlessprojects/Go-Hybrid#2620 "[wildcard] Let a task outlive its process: compiler-generate" · $1 limitlessprojects/Go-Hybrid#2475 "[wildcard] Kahn determinism: prove that a checked task netwo" · $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis" · $? limitlessprojects/Go-Hybrid#1962 "Serial by default: safe execution first" · $? limitlessprojects/Go-Hybrid#1669 "[wildcard] Structured Task Scopes & Affine Cancellation Toke" · 🆕 **1 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
-- **🧪 strategy (autoresearch)**: hypothesis **H2-undercut-10** — Undercut: bid 10% below budget (active since 2026-10-01, review #2) · contracts won this month: **0** · paper: program-paper.md
-- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#2475: contested (/attempt present); all newest contested
+- **🧪 strategy (autoresearch)**: hypothesis **H2-undercut-10** — Undercut: bid 10% below budget (active since 2026-10-01, review #2) · contracts won this month: **0** · paper: program-paper.md · 🔄 **MONTHLY REVIEW WRITTEN — rotated to H3-high-volume**
+- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#2620: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - _no PRs found yet_
