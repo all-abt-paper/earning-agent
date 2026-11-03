@@ -7,5 +7,13 @@
     "mode": "dry-run",
     "verdict": "no-patch"
   },
-  "__lastAttempt": "2026-10-26T23:49:39.152Z"
+  "__lastAttempt": "2026-11-03T03:55:34.569Z",
+  "6175352045": {
+    "at": "2026-11-03T03:55:34.569Z",
+    "repo": "limitlessprojects/Go-Hybrid",
+    "issue": 3429,
+    "title": "[wildcard] Zero-copy loan slices across the assembly trampol",
+    "mode": "dry-run",
+    "verdict": "no-patch"
+  }
 }
