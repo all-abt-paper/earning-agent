@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-07T03:11:23.925Z (UTC), on GitHub Actions._
+_Last run: 2026-11-07T10:03:08.456Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -15,8 +15,8 @@ _Last run: 2026-11-07T03:11:23.925Z (UTC), on GitHub Actions._
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
-- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $0.25, entry $0.06) · board history: 454 decided, 21% accepted, 84 paid totalling $70.59 · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**
-- **x402 market size (Agent402 on-chain leaderboard)**: **3715** sellers scanned (7d window) · top: AX1 Console — $14374.43 / 723750 calls / 4453 buyers · market.datapackvibe.com — $2607.871949 / 260838 calls / 4 buyers · x402.dtelecom.org — $1301.90007 / 1042 calls / 6 buyers
+- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $0.25, entry $0.06) · board history: 454 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
+- **x402 market size (Agent402 on-chain leaderboard)**: **3692** sellers scanned (7d window) · top: AX1 Console — $14259.24 / 718337 calls / 4324 buyers · market.datapackvibe.com — $2545.001949 / 254551 calls / 4 buyers · x402.dtelecom.org — $1302.00007 / 1042 calls / 6 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **580** open · newest: $? limitlessprojects/Go-Hybrid#3900 "[wildcard] Synthesize progress strategies for bounded, data-" · $? limitlessprojects/Go-Hybrid#3429 "[wildcard] Zero-copy loan slices across the assembly trampol" · $? limitlessprojects/Go-Hybrid#2965 "[wildcard] Certified Task-Region Memory Budgets: compile-tim" · $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis" · $? limitlessprojects/Go-Hybrid#1962 "Serial by default: safe execution first"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
