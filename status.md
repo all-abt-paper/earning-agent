@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-13T18:29:30.023Z (UTC), on GitHub Actions._
+_Last run: 2026-11-13T23:51:06.196Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-11-13T18:29:30.023Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $0.25, entry $0.06) · board history: 454 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3840** sellers scanned (7d window) · top: AX1 Console — $9484.9 / 491019 calls / 992 buyers · x402.dtelecom.org — $1294.900056 / 1031 calls / 5 buyers · Clash of Coins — $671.387027 / 33615 calls / 484 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3857** sellers scanned (7d window) · top: AX1 Console — $10373.95 / 536105 calls / 1001 buyers · x402.dtelecom.org — $1299.900056 / 1032 calls / 5 buyers · Clash of Coins — $696.666027 / 34878 calls / 484 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **582** open · newest: $, limitlessprojects/Go-Hybrid#4176 "[wildcard] Replace the static sendability proof with exhaust" · $? limitlessprojects/Go-Hybrid#3900 "[wildcard] Synthesize progress strategies for bounded, data-" · $? limitlessprojects/Go-Hybrid#3429 "[wildcard] Zero-copy loan slices across the assembly trampol" · $? limitlessprojects/Go-Hybrid#2965 "[wildcard] Certified Task-Region Memory Budgets: compile-tim" · $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
