@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-14T13:27:42.034Z (UTC), on GitHub Actions._
+_Last run: 2026-11-14T18:50:43.439Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -11,12 +11,12 @@ _Last run: 2026-11-14T13:27:42.034Z (UTC), on GitHub Actions._
 - https://token-intel.all-abt-paper28.deno.net — service **live** · paid-route **gate-ok (402 challenge served)** · intel **pipeline-ok (demo score 99, 3 sources, mcp-ok)** · x402 directory listing: _pending (run the x402scan registration to flip this)_
 
 ## 🔀 Alt rails (widening the net beyond Superteam)
-- **OpenTask** router: **AVAILABLE** · LIVE methods: opentask-router-native, mpp-httpauth, x402-v2 — ACT NOW
+- **OpenTask** router: **HTTP 404** _(watching for revival; speaks x402-v2 our service already supports)_
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 457 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **3867** sellers scanned (7d window) · top: AX1 Console — $11702.61 / 603654 calls / 1026 buyers · x402.dtelecom.org — $1295.400056 / 1032 calls / 5 buyers · Clash of Coins — $741.307027 / 37111 calls / 485 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **3874** sellers scanned (7d window) · top: AX1 Console — $11976.99 / 617770 calls / 1043 buyers · x402.dtelecom.org — $1295.400056 / 1032 calls / 5 buyers · Clash of Coins — $757.188027 / 37906 calls / 486 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **582** open · newest: $, limitlessprojects/Go-Hybrid#4176 "[wildcard] Replace the static sendability proof with exhaust" · $? limitlessprojects/Go-Hybrid#3900 "[wildcard] Synthesize progress strategies for bounded, data-" · $? limitlessprojects/Go-Hybrid#3429 "[wildcard] Zero-copy loan slices across the assembly trampol" · $? limitlessprojects/Go-Hybrid#2965 "[wildcard] Certified Task-Region Memory Budgets: compile-tim" · $? limitlessprojects/Go-Hybrid#2176 "[wildcard] Make hy-check an untrusted proof producer: permis"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
