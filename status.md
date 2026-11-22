@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-22T15:39:38.263Z (UTC), on GitHub Actions._
+_Last run: 2026-11-22T21:15:18.387Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -18,10 +18,10 @@ _Last run: 2026-11-22T15:39:38.263Z (UTC), on GitHub Actions._
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 457 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
 - **x402 market size (Agent402 on-chain leaderboard)**: **4160** sellers scanned (7d window) · top: AX1 Console — $25750.444473 / 1310823 calls / 4861 buyers · X Pay — $6675.996089 / 467053 calls / 87 buyers · Clash of Coins — $929.752073 / 46584 calls / 697 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **595** open · newest: $? limitlessprojects/Go-Hybrid#4644 "[wildcard] Let the caller’s observation decide when a parall" · $? limitlessprojects/Go-Hybrid#4642 "[wildcard] Bind an orientation decision to the vertices it i" · $? limitlessprojects/Go-Hybrid#4637 "[wildcard] Let Go refactoring tools edit Hybrid through its " · $? limitlessprojects/Go-Hybrid#4634 "[wildcard] Let a transfer plan carry both the write partitio" · $? limitlessprojects/Go-Hybrid#4617 "[wildcard] Let worker counts change without changing the bit" · 🆕 **1 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **597** open · newest: $? limitlessprojects/Go-Hybrid#4656 "[wildcard] Carry Tier-0 decisions across edits by rechecking" · $? limitlessprojects/Go-Hybrid#4655 "[wildcard] Zero-Allocation Task Graph Certification: Compile" · $? limitlessprojects/Go-Hybrid#4644 "[wildcard] Let the caller’s observation decide when a parall" · $? limitlessprojects/Go-Hybrid#4642 "[wildcard] Bind an orientation decision to the vertices it i" · $? limitlessprojects/Go-Hybrid#4637 "[wildcard] Let Go refactoring tools edit Hybrid through its " · 🆕 **2 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
 - **🧪 strategy (autoresearch)**: hypothesis **H3-high-volume** — Volume: 3 bids/run, $5 floor (active since 2026-11-01, review #3) · contracts won this month: **0** · paper: program-paper.md
-- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#4644: contested (/attempt present); all newest contested
+- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#4656: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - _no PRs found yet_
