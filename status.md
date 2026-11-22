@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-21T20:03:26.892Z (UTC), on GitHub Actions._
+_Last run: 2026-11-22T00:18:25.301Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -16,7 +16,7 @@ _Last run: 2026-11-21T20:03:26.892Z (UTC), on GitHub Actions._
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
 - **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **0** (pot $0, entry $0.06) · board history: 457 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
-- **x402 market size (Agent402 on-chain leaderboard)**: **4136** sellers scanned (7d window) · top: AX1 Console — $25431.423529 / 1294726 calls / 4672 buyers · X Pay — $6140.186557 / 435675 calls / 78 buyers · Clash of Coins — $924.554537 / 46315 calls / 662 buyers
+- **x402 market size (Agent402 on-chain leaderboard)**: **4160** sellers scanned (7d window) · top: AX1 Console — $25548.363529 / 1300568 calls / 4712 buyers · X Pay — $6273.980377 / 442493 calls / 78 buyers · Clash of Coins — $924.335751 / 46310 calls / 662 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
 - **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **591** open · newest: $? limitlessprojects/Go-Hybrid#4617 "[wildcard] Let worker counts change without changing the bit" · $? limitlessprojects/Go-Hybrid#4597 "[wildcard] Let the compiler introduce image-filter tasks wit" · $? limitlessprojects/Go-Hybrid#4596 "[wildcard] Reversible checked regions: synthesize inverse co" · $? limitlessprojects/Go-Hybrid#4593 "[wildcard] Compile a fixed-rate pipeline into a seekable out" · $? limitlessprojects/Go-Hybrid#4574 "[wildcard] Derive an editable record index from a checked by"
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
