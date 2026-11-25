@@ -1,6 +1,6 @@
 # Earning agent status
 
-_Last run: 2026-11-25T12:43:12.034Z (UTC), on GitHub Actions._
+_Last run: 2026-11-25T21:59:08.090Z (UTC), on GitHub Actions._
 
 ## 💰 Wallet (real earnings land here)
 - **Base USDC** `0x10631e0bB607621dBE30E375b948e1d1623D59B4`: **0**
@@ -15,13 +15,13 @@ _Last run: 2026-11-25T12:43:12.034Z (UTC), on GitHub Actions._
 - **dealwork.ai** (PaperRails): heartbeat **ok** · bids: expired $8.0000, expired $10.0000, expired $15.0000 · contracts: none · 📦 delivery: none active · 👤 profile: complete ✓ · acct: human-session-only (HTTP 403) · 🤖 auto-bid: no new matches (0 skipped)
 - **toku.agency** (PaperRails, real-USD wallet): balance **$0.00** · 0 transactions · 0 unread
 - **beesi.ai** (on-chain agent bounties, pre-mainnet): _watching (site 200, still audit-gated)
-- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 457 decided, 21% accepted, 84 paid totalling $70.59 · 🎯 **NEW BOUNTY POSTED — read the board stats, then decide with the human (wallet holds $0; entry costs real USDC)**
-- **x402 market size (Agent402 on-chain leaderboard)**: **4283** sellers scanned (7d window) · top: AX1 Console — $21308.494532 / 1091070 calls / 5031 buyers · X Pay — $8309.064959 / 557799 calls / 87 buyers · Clash of Coins — $1022.495874 / 51281 calls / 718 buyers
+- **deskcrew.io** (support bounties, human approval pays 85%): board live · open bounties **1** (pot $1, entry $0.06) · board history: 457 decided, 21% accepted, 84 paid totalling $70.59 · watching (entry costs real USDC — wallet is at $0, so observe only)
+- **x402 market size (Agent402 on-chain leaderboard)**: **4309** sellers scanned (7d window) · top: AX1 Console — $22581.377532 / 1156741 calls / 4883 buyers · X Pay — $7968.729419 / 529720 calls / 88 buyers · api.botpay.network — $1075.481526 / 10811 calls / 347 buyers
 - **task-bounty.com** (fix real GitHub bugs, keep 80%): board empty (checked every run — signup is only worth it the day bounties appear)
-- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **637** open · newest: $50 madin-ll/bounty-pipeline-e2e-verify#1 "💎 Bounty : parse_duration drops the days (d) unit" · $250 limitlessprojects/Go-Hybrid#4739 "[wildcard] The expressiveness census: port real Go programs " · $? limitlessprojects/Go-Hybrid#4729 "[wildcard] Make an ownership-breaking release produce its sm" · $? limitlessprojects/Go-Hybrid#4726 "[wildcard] Check a declared family of Go build tags and retu" · $? limitlessprojects/Go-Hybrid#4699 "[wildcard] Deterministic artifact manifests with ordinary Go"
+- **Algora 💎 bounties** (fix GitHub issues, paid on merge, autoresearch-style loop): **639** open · newest: $? limitlessprojects/Go-Hybrid#4781 "[wildcard] Certify peak live buffer bytes across schedules a" · $? limitlessprojects/Go-Hybrid#4775 "[wildcard] Require diagnostic locations to round-trip to the" · $50 madin-ll/bounty-pipeline-e2e-verify#1 "💎 Bounty : parse_duration drops the days (d) unit" · $250 limitlessprojects/Go-Hybrid#4739 "[wildcard] The expressiveness census: port real Go programs " · $? limitlessprojects/Go-Hybrid#4729 "[wildcard] Make an ownership-breaking release produce its sm" · 🆕 **2 NEW since last run** — claim flow: fork, patch, green tests, PR (claim via a /attempt comment on the issue)
 - **🛡️ security research** (policy-gated per SECURITY-RESEARCH-POLICY.md): gate **CLOSED** · allowlist empty — zero activity by construction (a human must vet + add programs before this gate can open) · audit log: 0 entries
 - **🧪 strategy (autoresearch)**: hypothesis **H3-high-volume** — Volume: 3 bids/run, $5 floor (active since 2026-11-01, review #3) · contracts won this month: **0** · paper: program-paper.md
-- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — madin-ll/bounty-pipeline-e2e-verify#1: contested (/attempt present); limitlessprojects/Go-Hybrid#4729: contested (/attempt present); all newest contested
+- **autoresearch bounty loop**: 🛠️ attempt (dry-run): no eligible target this run — limitlessprojects/Go-Hybrid#4781: contested (/attempt present); madin-ll/bounty-pipeline-e2e-verify#1: contested (/attempt present); all newest contested
 
 ## 🔧 profullstack PR bounties (pay-per-merged-PR on ugig; invoice required after merge)
 - _no PRs found yet_
